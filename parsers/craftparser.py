@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests
+import json, sys, re, requests
 from xml.etree import ElementTree as ET
-import re
 from tabulate import tabulate
-import json
 
 # first we need the post ID
 res = requests.get('https://m.facebook.com/Craftbeerbottleshopbar/', headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
@@ -55,5 +53,8 @@ for article in articles:
 			output = output + [m.groups()]
 
 	if output:
-		print(tabulate(output, headers=headers))
+		if len(sys.argv) > 1 and sys.argv[1] == 'json':
+			print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
+		else: 
+			print(tabulate(output, headers=headers))
 		break
