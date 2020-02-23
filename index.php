@@ -13,7 +13,7 @@ switch ($bar) {
 	case 'op':
 	case 'craft':
 		$parser = "./parsers/".$bar."parser.py";
-		$file = "tmp/".$bar.".txt";
+		$file = "cache/".$bar.".txt";
 		break;
 	default:
 		die("'mw', 'op' or 'craft'\n");
