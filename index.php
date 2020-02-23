@@ -13,7 +13,7 @@ switch ($bar) {
 	case 'op':
 	case 'craft':
 		$parser = "./parsers/".$bar."parser.py";
-		$file = "cache/".$bar.".txt";
+		$file = "cache/".$bar.".json";
 		break;
 	default:
 		die("'mw', 'op' or 'craft'\n");
@@ -24,34 +24,22 @@ $modtime = filemtime($file);
 $curtime = time();
 
 if ($curtime > $modtime + 300) {
-	shell_exec($parser." > ".$file);
+	shell_exec($parser." json > ".$file);
 }
 
 // Read cached file
-$output = file_get_contents($file);
-
-function get_beer_names($string)
-{
-	$lines = explode("\n", $string);
-	$delimiters = explode("  ", $lines[1]);
-	$beer_len = strlen($delimiters[0]);
-
-	for  ($i = 2; $i < count($lines) -1; $i++) {
-		$beer_names[] = rtrim(mb_substr($lines[$i], 0, $beer_len));
-	}
-
-	return implode(" | ", $beer_names);
-}
+$output = shell_exec("(cat ".$file." | ./tools/json2table.py)");
+$titles = shell_exec("(cat ".$file." | ./tools/json2titles.py)");
 
 // For browsers
 if (stripos($_SERVER['HTTP_USER_AGENT'], "Mozilla") !== false) {
-	print "<head><title>".get_beer_names($output)."</title></head>\n";
+	print "<head><title>".$titles."</title></head>\n";
 	$output = "<pre>".$output."</pre>";
 }
 
 // Short version for IRC
 if (isset($_GET['t']) && $_GET['t'] == "irc") {
-	print get_beer_names($output);
+	print($titles);
 } else {
 	print($output);
 }
