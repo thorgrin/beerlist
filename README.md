@@ -21,7 +21,11 @@ python3 ./parsers/mwparser.py
 
 To run as web service under Apache:
 * check out the code to a web accessible directory with PHP support
-* change owner of `tmp` directory to that of the web server (e.g. www-data)
+* change group of `cache` directory to that of the web server (e.g. www-data)
+```
+chgrp www-data cache
+chmod 6775 cache
+```
 * allow mod_rewrite (a2enmod rewrite)
 * allow .htaccess for the dir
 ```
