@@ -10,7 +10,14 @@ This project aims to provide simple interface to get lists of beers from my favo
 
 ## Howto use
 
-The parsers can be used separately, there are just a few simple dependencies.
+The parsers can be used separately, there are just a few simple dependencies as mentioned in `requirements.txt`.
+The parsers can be easily run in their own python virtual environment:
+```
+python3 -m venv ./venv
+source /venv/bin/activate
+pip3 install -r requirements.txt
+python3 ./parsers/mwparser.py
+```
 
 To run as web service under Apache:
 * check out the code to a web accessible directory with PHP support
