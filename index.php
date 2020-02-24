@@ -12,7 +12,7 @@ switch ($bar) {
 	case 'mw':
 	case 'op':
 	case 'craft':
-		$parser = "./parsers/".$bar."parser.py";
+		$update = "./tools/update_cache.sh ".$bar;
 		$file = "cache/".$bar.".json";
 		break;
 	default:
@@ -24,7 +24,7 @@ $modtime = filemtime($file);
 $curtime = time();
 
 if ($curtime > $modtime + 300) {
-	shell_exec($parser." json > ".$file);
+	shell_exec($update);
 }
 
 // Read cached file
