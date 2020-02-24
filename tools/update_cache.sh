@@ -19,7 +19,7 @@ for bar in $bars; do
 	file_old="${CWD}/../cache/${bar}.json"
 
 	# Get update from the bar
-#	${CWD}/../parsers/${bar}parser.py json > "$file_new"
+	${CWD}/../parsers/${bar}parser.py json > "$file_new"
 
 	# Compute the diff
 	diff=`${CWD}/beerdiff.py "$bar" "$file_new" "$file_old"`
@@ -29,7 +29,7 @@ for bar in $bars; do
 	fi
 
 	# Log the new beers
-#	echo $diff >> "${CWD}/../log/beerlog.json"
+	echo $diff >> "${CWD}/../log/beerlog.json"
 
 
 	# Push the new beers to IRC
@@ -38,11 +38,9 @@ for bar in $bars; do
 			echo "/j ${IRC_CHANNEL}" > "${IRC_DIR}/${IRC_SERVER}/in"
 			sleep 1
 		fi
-#		echo "$diff" > "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in"
-		echo "$diff"
 		# Make the diff nicer and push it to IRC
-#		echo "$diff" | ${CWD}/diff2notify.py > "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in"
+		echo "$diff" | ${CWD}/diff2notify.py > "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in"
 	fi
 
-#	mv $file_new $file_old
+	mv $file_new $file_old
 done
