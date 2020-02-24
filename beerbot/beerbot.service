@@ -1,0 +1,13 @@
+[Unit]
+Description=IRC beer reporting bot
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/ii -s chat.freenode.net -n beerbot -i /tmp/ii
+ExecStop=/bin/rm -rf /tmp/ii
+RemainAfterExit=no
+Restart=on-failure
+
+[Install]
+WantedBy = multi-user.target

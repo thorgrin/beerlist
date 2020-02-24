@@ -45,3 +45,15 @@ chgrp www-data log/beerlog.json
                 AllowOverride All
         </Directory>
 ```
+
+### Push beer notifications to IRC
+Notifications can be easily pushed to a selected IRC channel by setting up an instance of ii (IRC file based client)
+```
+apt-get install ii
+sudo cp beerbot/beerbot.service /etc/systemd/user/
+cp beerbot/beerbot.conf ~/.config/
+systemctl --user daemon-reload
+systemctl --user enable beerbot
+systemctl --user start beerbot
+```
+To configure the IRC server, channel and bot name, edit the `beerbot.conf` file.

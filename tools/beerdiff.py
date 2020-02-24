@@ -2,7 +2,7 @@
 
 import sys
 import json
-from collections import OrderedDict 
+from collections import OrderedDict
 from datetime import datetime
 
 if len(sys.argv) != 4:
@@ -10,10 +10,17 @@ if len(sys.argv) != 4:
 	exit(-1)
 
 with open(sys.argv[2]) as file_new:
-	data_new = json.load(file_new)
+	try:
+		data_new = json.load(file_new)
+	except json.decoder.JSONDecodeError:
+		print("The new cache file is empty", file=sys.stderr)
+		exit(-2)
 
 with open(sys.argv[3]) as file_old:
-	data_old = json.load(file_old)
+	try:
+		data_old = json.load(file_old)
+	except json.decoder.JSONDecodeError:
+		data_old = {'beers': [], 'headers': []}
 
 # compute set difference of tuples (cannot do that with list of lists)
 new_set = set(map(tuple, data_new['beers']))

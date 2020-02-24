@@ -28,7 +28,7 @@ for article in articles:
 
 	# Hope that last paragraph of post contains beers
 	page = ET.XML(body)
-	
+
 	# The relevant div has class either 'msg' or 'bz'
 	beers = page.find(".//div[@class='msg']")
 	if not beers:
@@ -37,7 +37,7 @@ for article in articles:
 	# Nothing? Give up
 	if not beers:
 		continue
-	
+
 	beers = list(beers.itertext())
 
 	# Hope that the beer list format is the same
@@ -55,6 +55,6 @@ for article in articles:
 	if output:
 		if len(sys.argv) > 1 and sys.argv[1] == 'json':
 			print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
-		else: 
+		else:
 			print(tabulate(output, headers=headers))
 		break
