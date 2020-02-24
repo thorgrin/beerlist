@@ -10,8 +10,9 @@ This project aims to provide simple interface to get lists of beers from my favo
 
 ## Howto use
 
-The parsers can be used separately, there are just a few simple dependencies as mentioned in `requirements.txt`.
-The parsers can be easily run in their own python virtual environment:
+### Separate use of parsers
+* The parsers can be used separately, there are just a few simple dependencies as mentioned in `requirements.txt`.
+* The parsers can be easily run in their own python virtual environment:
 ```
 python3 -m venv ./venv
 source /venv/bin/activate
@@ -19,12 +20,23 @@ pip3 install -r requirements.txt
 python3 ./parsers/mwparser.py
 ```
 
-To run as web service under Apache:
+### Run periodically and create beerlog
+* Add `update_cache.sh ` script to crontab
+```
+*/20 0,1,9-23 * * * /path/to/tools/update_cache.sh
+```
+
+### Run as web service under Apache:
 * check out the code to a web accessible directory with PHP support
 * change group of `cache` directory to that of the web server (e.g. www-data)
 ```
 chgrp www-data cache
 chmod 6775 cache
+```
+* Setup log file with permissions:
+```
+touch log/beerlog.json
+chgrp www-data log/beerlog.json
 ```
 * allow mod_rewrite (a2enmod rewrite)
 * allow .htaccess for the dir
