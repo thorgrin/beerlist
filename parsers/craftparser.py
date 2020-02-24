@@ -33,9 +33,9 @@ for article in articles:
 	# The relevant div has class either 'msg', 'cf' or 'bz'
 	beers = page.find(".//div[@class='msg']")
 	if not beers:
-		beers = page.find(".//div[@class='bz']")
-	if not beers:
 		beers = page.find(".//div[@class='cf']")
+	if not beers:
+		beers = page.find(".//div[@class='bz']")
 
 	# Nothing? Give up
 	if not beers:
