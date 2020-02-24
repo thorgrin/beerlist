@@ -20,4 +20,4 @@ for line in sys.stdin:
     for h in headers:
         if not h in d:
             d[h] = '--'
-    print("Notify: %s (by %s) :: %s :: EPM %s Alk. %s IBU %s:: %s :: %s" % (d['Pivo'], pivovar, typ, d['EPM'], d['Alk.'], d['IBU'], mesto, bars[d['Pivnice']]))
+    print("Notify: %s (by %s) :: %s :: EPM %s Alk. %s IBU %s :: %s :: %s" % (d['Pivo'], pivovar, typ, d['EPM'], d['Alk.'], d['IBU'], mesto, bars[d['Pivnice']]))
