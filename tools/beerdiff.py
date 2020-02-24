@@ -2,21 +2,27 @@
 
 import sys
 import json
+from datetime import datetime
 
-if len(sys.argv) != 3:
-	print("diff requires two arguments: new.json old.json")
+if len(sys.argv) != 4:
+	print("diff requires three arguments: pub_name new.json old.json")
 	exit(-1)
 
-with open(sys.argv[1]) as file_new:
+with open(sys.argv[2]) as file_new:
 	data_new = json.load(file_new)
 
-with open(sys.argv[2]) as file_old:
+with open(sys.argv[3]) as file_old:
 	data_old = json.load(file_old)
 
+# compute set difference of tuples (cannot do that with list of lists)
 new_set = set(map(tuple, data_new['beers']))
 old_set = set(map(tuple, data_old['beers']))
 diff = new_set - old_set
-diff = list(map(list, diff))
+# convert back to list of lists
+diff = list(map(list, new_set - old_set))
 if diff:
 	for beer in diff:
-		print(json.dumps(dict(zip(data_new['headers'], beer)), ensure_ascii=False))
+		beer_dict = dict(zip(data_new['headers'], beer))
+		beer_dict['Pivnice'] = sys.argv[1]
+		beer_dict['Time'] = datetime.now().strftime("%Y-%m-%d %H:%M")
+		print(json.dumps(beer_dict, ensure_ascii=False))
