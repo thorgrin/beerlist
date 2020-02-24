@@ -2,6 +2,7 @@
 
 import sys
 import json
+from collections import OrderedDict 
 from datetime import datetime
 
 if len(sys.argv) != 4:
@@ -22,7 +23,7 @@ diff = new_set - old_set
 diff = list(map(list, new_set - old_set))
 if diff:
 	for beer in diff:
-		beer_dict = dict(zip(data_new['headers'], beer))
+		beer_dict = OrderedDict(zip(data_new['headers'], beer))
 		beer_dict['Pivnice'] = sys.argv[1]
 		beer_dict['Time'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 		print(json.dumps(beer_dict, ensure_ascii=False))
