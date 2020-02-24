@@ -15,6 +15,7 @@ body = reg.search(res.text).group(0)
 page = ET.XML(body)
 articles = page.findall(".//div[@role='article']")
 
+
 # Look at all articles until some beers are found
 for article in articles:
 	data = json.loads(article.attrib['data-ft'])
@@ -29,10 +30,12 @@ for article in articles:
 	# Hope that last paragraph of post contains beers
 	page = ET.XML(body)
 
-	# The relevant div has class either 'msg' or 'bz'
+	# The relevant div has class either 'msg', 'cf' or 'bz'
 	beers = page.find(".//div[@class='msg']")
 	if not beers:
 		beers = page.find(".//div[@class='bz']")
+	if not beers:
+		beers = page.find(".//div[@class='cf']")
 
 	# Nothing? Give up
 	if not beers:
