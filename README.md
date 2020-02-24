@@ -33,6 +33,7 @@ python3 ./parsers/mwparser.py
 chgrp www-data cache
 chmod 6775 cache
 ```
+* Check that all files are first created by calling `tools/update_cache.sh` to ensure that the usr has owner rights
 * Setup log file with permissions:
 ```
 touch log/beerlog.json
