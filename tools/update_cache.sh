@@ -25,7 +25,7 @@ for bar in $bars; do
 	diff=`${CWD}/beerdiff.py "$bar" "$file_new" "$file_old"`
 	
 	if [ -z "$diff" ]; then
-		rm "$file_new"
+		mv "$file_new" "$file_old"
 		continue
 	fi
 
