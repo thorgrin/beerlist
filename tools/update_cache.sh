@@ -25,7 +25,8 @@ for bar in $bars; do
 	diff=`${CWD}/beerdiff.py "$bar" "$file_new" "$file_old"`
 	
 	if [ -z "$diff" ]; then
-		mv "$file_new" "$file_old"
+		cat "$file_new" > "$file_old"
+		rm "$file_new"
 		continue
 	fi
 
@@ -43,5 +44,6 @@ for bar in $bars; do
 		echo "$diff" | ${CWD}/diff2notify.py > "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in"
 	fi
 
-	mv "$file_new" "$file_old"
+	cat "$file_new" > "$file_old"
+	rm "$file_new"
 done
