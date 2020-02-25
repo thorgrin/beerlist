@@ -19,6 +19,14 @@ for line in sys.stdin:
         continue
     d = json.loads(line, object_pairs_hook=OrderedDict)
     d['Pivnice'] = bars[d['Pivnice']]
+    if 'Action' in d:
+        a = '+' if 'added' in d['Action'] else '-'
+        del d['Action']
+    else:
+        a = '+'
+
+    d['*'] = a
+    d.move_to_end('*', last=False)
     table  = [d] + table
 
-print(tabulate(table, headers='keys'))
+print(tabulate(table, headers='keys', tablefmt="simple"))
