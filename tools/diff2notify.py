@@ -6,7 +6,8 @@ import json
 bars = {
     'op': 'Ochutnávková pivnice',
     'mw': 'Malt Worm',
-    'craft': 'Craftbeer bottle shop & bar'
+    'craft': 'Craftbeer bottle shop & bar',
+    'jbm': 'JBM Brew Lab Pub'
 }
 
 headers = ['EPM', 'Alk.', 'IBU']

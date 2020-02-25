@@ -8,7 +8,8 @@ from collections import OrderedDict
 bars = {
     'op': 'Ochutnávková pivnice',
     'mw': 'Malt Worm',
-    'craft': 'Craftbeer bottle shop & bar'
+    'craft': 'Craftbeer bottle shop & bar',
+    'jbm': 'JBM Brew Lab Pub'
 }
 
 table = []

@@ -12,6 +12,7 @@ switch ($bar) {
 	case 'mw':
 	case 'op':
 	case 'craft':
+	case 'jbm':
 		$update = "./tools/update_cache.sh ".$bar;
 		$file = "cache/".$bar.".json";
 		break;
