@@ -52,7 +52,8 @@ Notifications can be easily pushed to a selected IRC channel by setting up an in
 ```
 apt-get install ii
 sudo cp beerbot/beerbot.service /etc/systemd/user/
-cp beerbot/beerbot.conf ~/.config/
+# the config file must be accessible even for www-data, therefore this ugly place
+sudo cp beerbot/beerbot.conf /etc/
 systemctl --user daemon-reload
 systemctl --user enable beerbot
 systemctl --user start beerbot

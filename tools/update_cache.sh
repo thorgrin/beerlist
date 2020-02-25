@@ -3,7 +3,8 @@
 CWD=`dirname "$(readlink -f "$0")"`
 
 # Read config file if it exists
-config="$(readlink -f ~/.config/beerbot.conf)"
+#config="$(readlink -f ~/.config/beerbot.conf)"
+config="$(readlink -f /etc/beerbot.conf)"
 if [ -f "$config" ]; then
 	source $config
 fi
@@ -35,8 +36,8 @@ for bar in $bars; do
 
 
 	# Push the new beers to IRC
-	if [ "$IRC_PUSH" == "yes" ]; then
-		if [ ! -d "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}" ]; then
+	if [ "x$IRC_PUSH" = "xyes" ]; then
+		if [ ! -f "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/out" ]; then
 			echo "/j ${IRC_CHANNEL}" > "${IRC_DIR}/${IRC_SERVER}/in"
 			sleep 1
 		fi
