@@ -5,18 +5,18 @@ import json
 from collections import OrderedDict
 from datetime import datetime
 
-if len(sys.argv) != 4:
-	print("diff requires three arguments: pub_name new.json old.json")
+if len(sys.argv) != 5:
+	print("diff requires four arguments: new.json old.json pub_name state (added/removed)")
 	exit(-1)
 
-with open(sys.argv[2]) as file_new:
+with open(sys.argv[1]) as file_new:
 	try:
 		data_new = json.load(file_new)
 	except json.decoder.JSONDecodeError:
 		print("The new cache file is empty", file=sys.stderr)
 		exit(-2)
 
-with open(sys.argv[3]) as file_old:
+with open(sys.argv[2]) as file_old:
 	try:
 		data_old = json.load(file_old)
 	except json.decoder.JSONDecodeError:
@@ -31,6 +31,7 @@ diff = list(map(list, new_set - old_set))
 if diff:
 	for beer in diff:
 		beer_dict = OrderedDict(zip(data_new['headers'], beer))
-		beer_dict['Pivnice'] = sys.argv[1]
+		beer_dict['Pivnice'] = sys.argv[3]
+		beer_dict['Action'] = sys.argv[4]
 		beer_dict['Time'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 		print(json.dumps(beer_dict, ensure_ascii=False))

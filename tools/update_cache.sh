@@ -23,26 +23,21 @@ for bar in $bars; do
 	${CWD}/../parsers/${bar}parser.py json > "$file_new"
 
 	# Compute the diff
-	diff=`${CWD}/beerdiff.py "$bar" "$file_new" "$file_old"`
-	
-	if [ -z "$diff" ]; then
-		cat "$file_new" > "$file_old"
-		rm "$file_new"
-		continue
-	fi
+	add_diff=`${CWD}/beerdiff.py "$file_new" "$file_old" "$bar" "added"`
+	del_diff=`${CWD}/beerdiff.py "$file_old" "$file_new" "$bar" "removed"`
 
 	# Log the new beers
-	echo "$diff" >> "${CWD}/../log/beerlog.json"
-
+	echo "$add_diff" >> "${CWD}/../log/beerlog.json"
+	echo "$del_diff" >> "${CWD}/../log/beerlog.json"
 
 	# Push the new beers to IRC
-	if [ "x$IRC_PUSH" = "xyes" ]; then
+	if [ "x$IRC_PUSH" = "xyes"  -a -n "$add_diff" ]; then
 		if [ ! -f "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/out" ]; then
 			echo "/j ${IRC_CHANNEL}" > "${IRC_DIR}/${IRC_SERVER}/in"
 			sleep 1
 		fi
 		# Make the diff nicer and push it to IRC
-		echo "$diff" | ${CWD}/diff2notify.py > "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in"
+		echo "$add_diff" | ${CWD}/diff2notify.py > "${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in"
 	fi
 
 	cat "$file_new" > "$file_old"
