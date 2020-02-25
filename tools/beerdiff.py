@@ -9,18 +9,17 @@ if len(sys.argv) != 5:
 	print("diff requires four arguments: new.json old.json pub_name state (added/removed)")
 	exit(-1)
 
-with open(sys.argv[1]) as file_new:
-	try:
+try:
+	with open(sys.argv[1]) as file_new:
 		data_new = json.load(file_new)
-	except json.decoder.JSONDecodeError:
-		print("The new cache file is empty", file=sys.stderr)
-		exit(-2)
+except Exception:
+	data_new = {'beers': [], 'headers': []}
 
-with open(sys.argv[2]) as file_old:
-	try:
+try:
+	with open(sys.argv[2]) as file_old:
 		data_old = json.load(file_old)
-	except json.decoder.JSONDecodeError:
-		data_old = {'beers': [], 'headers': []}
+except Exception:
+	data_old = {'beers': [], 'headers': []}
 
 # compute set difference of tuples (cannot do that with list of lists)
 new_set = set(map(tuple, data_new['beers']))
