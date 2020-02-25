@@ -26,7 +26,7 @@ for article in articles:
 
 	# get rid of 'IBU:' prefix
 	ibu_pos = headers.index('IBU')
-	values[ibu_pos] = values[ibu_pos].replace('IBU:', '')
+	values[ibu_pos] = values[ibu_pos].replace('IBU: ', '')
 
 	output = output + [values]
 	#print(dict(zip(headers, values)))
