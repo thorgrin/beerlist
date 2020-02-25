@@ -27,11 +27,11 @@ for bar in $bars; do
 	del_diff=`${CWD}/beerdiff.py "$file_old" "$file_new" "$bar" "removed"`
 
 	# Log the new beers
-	if [ -n "$add_diff" ]; then
-		echo "$add_diff" >> "${CWD}/../log/beerlog.json"
-	fi
 	if [ -n "$del_diff" ]; then
 		echo "$del_diff" >> "${CWD}/../log/beerlog.json"
+	fi
+	if [ -n "$add_diff" ]; then
+		echo "$add_diff" >> "${CWD}/../log/beerlog.json"
 	fi
 
 	# Push the new beers to IRC
