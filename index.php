@@ -15,8 +15,11 @@ switch ($bar) {
 		$update = "./tools/update_cache.sh ".$bar;
 		$file = "cache/".$bar.".json";
 		break;
+	case 'history':
+		die("<pre>".shell_exec("(cat ./log/beerlog.json | ./tools/log2table.py)")."</pre>");
+		break;
 	default:
-		die("'mw', 'op' or 'craft'\n");
+		die("'mw', 'op', 'craft' or 'history'\n");
 }
 
 // Handle caching
