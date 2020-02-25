@@ -20,10 +20,10 @@ for line in sys.stdin:
     d = json.loads(line, object_pairs_hook=OrderedDict)
     d['Pivnice'] = bars[d['Pivnice']]
     if 'Action' in d:
-        a = '+' if 'added' in d['Action'] else '-'
+        a = '🍺' if 'added' in d['Action'] else '🚫'
         del d['Action']
     else:
-        a = '+'
+        a = '🍺'
 
     d['*'] = a
     d.move_to_end('*', last=False)
