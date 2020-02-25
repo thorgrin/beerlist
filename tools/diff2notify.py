@@ -2,7 +2,6 @@
 
 import sys
 import json
-from tabulate import tabulate
 
 bars = {
     'op': 'Ochutnávková pivnice',
