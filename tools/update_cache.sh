@@ -12,7 +12,7 @@ fi
 if [ -n "$1" ]; then
 	bars="$1"
 else
-	bars="mw op craft"
+	bars="mw op craft jbm"
 fi
 
 for bar in $bars; do
