@@ -44,7 +44,7 @@ for article in articles:
 	beers = list(beers.itertext())
 
 	# Hope that the beer list format is the same
-	headers = ['Pivo', 'EPM', 'Pivovar', 'Typ']
+	headers = ['Pivo', 'Alk.', 'Pivovar', 'Typ']
 	output = []
 	for line in beers:
 		# Black Label #4 8,1% (Raven, Wild Ale)

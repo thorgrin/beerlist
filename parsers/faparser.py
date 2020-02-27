@@ -8,7 +8,7 @@ from tabulate import tabulate
 import json
 import sys
 
-res = requests.get('https://untappd.com/v/jbm-brew-lab-pub/4222393', headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
+res = requests.get('https://untappd.com/v/fa-bar-oranzova/1728532', headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
 res.encoding = 'utf-8'
 html = res.text
 
@@ -43,5 +43,5 @@ for row in beers:
 
 if len(sys.argv) > 1 and sys.argv[1] == 'json':
 	print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
-else: 
+else:
 	print(tabulate(output, headers=headers))

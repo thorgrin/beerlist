@@ -7,7 +7,8 @@ bars = {
     'op': 'Ochutnávková pivnice',
     'mw': 'Malt Worm',
     'craft': 'Craftbeer bottle shop & bar',
-    'jbm': 'JBM Brew Lab Pub'
+    'jbm': 'JBM Brew Lab Pub',
+    'fa': 'F.A. Bar Oranžová'
 }
 
 headers = ['EPM', 'Alk.', 'IBU']
