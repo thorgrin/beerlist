@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests, re, sys, json
+import re, sys, json
 from xml.etree import ElementTree as ET
 from tabulate import tabulate
+from common import beer_download_html
 
-res = requests.get('https://maltworm.cz/dnes-na-cepu/', headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
-res.encoding = 'utf-8'
-html = res.text
+html = beer_download_html('https://maltworm.cz/dnes-na-cepu/')
+if not html:
+	exit(-1)
 
 reg = re.compile('(<body.*</body>)', re.MULTILINE | re.DOTALL)
 body = reg.search(html).group(0)

@@ -2,3 +2,4 @@ cache/*.txt
 cache/*.json
 log/beerlog.json
 venv
+__pycache__
