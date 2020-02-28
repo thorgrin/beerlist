@@ -2,13 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from xml.etree import ElementTree as ET
-import re
-from tabulate import tabulate
-import json
-import sys
-from common import beer_download_html
+import re, sys
+import common as beerlib
 
-html = beer_download_html('http://ochutnavkovapivnice.cz/prave_na_cepu/')
+html = beerlib.download_html('http://ochutnavkovapivnice.cz/prave_na_cepu/')
 if not html:
 	exit(-1)
 
@@ -24,9 +21,5 @@ for row in rows:
 	beer = next(tds)[0][0].text
 	values = [beer] + [col.text for col in tds]
 	output = output + [values]
-	#print(dict(zip(headers, values)))
 
-if len(sys.argv) > 1 and sys.argv[1] == 'json':
-	print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
-else: 
-	print(tabulate(output, headers=headers))
+beerlib.parser_output(output, headers, sys.argv)

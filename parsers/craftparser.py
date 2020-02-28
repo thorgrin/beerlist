@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json, sys, re
+import sys, re, json
 from xml.etree import ElementTree as ET
-from tabulate import tabulate
-from common import beer_download_html
+import common as beerlib
 
 # first we need the post ID
-html = beer_download_html('https://m.facebook.com/Craftbeerbottleshopbar/')
+html = beerlib.download_html('https://m.facebook.com/Craftbeerbottleshopbar/')
 if not html:
 	exit(-1)
 # first we need the post ID
@@ -25,7 +24,7 @@ for article in articles:
 	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (data['top_level_post_id'], data['content_owner_id_new'])
 
 	# Okay, let's get the post
-	post_html = beer_download_html(post_url)
+	post_html = beerlib.download_html(post_url)
 	if not post_html:
 		continue
 	body = reg.search(post_html).group(0)
@@ -59,8 +58,5 @@ for article in articles:
 			output = output + [m.groups()]
 
 	if output:
-		if len(sys.argv) > 1 and sys.argv[1] == 'json':
-			print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
-		else:
-			print(tabulate(output, headers=headers))
+		beerlib.parser_output(output, headers, sys.argv)
 		break
