@@ -22,4 +22,4 @@ for row in rows:
 	values = [beer] + [col.text for col in tds]
 	output = output + [values]
 
-beerlib.parser_output(output, headers, sys.argv)
+beerlib.parser_output(output, headers, 'Ochutnávková pivnice', sys.argv)

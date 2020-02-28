@@ -55,8 +55,8 @@ for article in articles:
 			# Zlaté Prasátko 6,5%
 			m = re.match(' *(.+) ([0-9,\.]+%)', line)
 		if m:
-			output = output + [m.groups()]
+			output = output + [list(m.groups())]
 
 	if output:
-		beerlib.parser_output(output, headers, sys.argv)
+		beerlib.parser_output(output, headers, 'Craftbeer bottle shop & bar', sys.argv)
 		break

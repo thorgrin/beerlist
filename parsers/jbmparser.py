@@ -38,4 +38,4 @@ for row in beers:
 		ibu = ''
 	output = output + [[title, style, alk, ibu, brewery]]
 
-beerlib.parser_output(output, headers, sys.argv)
+beerlib.parser_output(output, headers, 'JBM Brew Lab Pub', sys.argv)

@@ -30,4 +30,4 @@ for article in articles:
 
 	output = output + [values]
 
-beerlib.parser_output(output, headers, sys.argv)
+beerlib.parser_output(output, headers, 'Malt Worm', sys.argv)

@@ -3,14 +3,6 @@
 import sys
 import json
 
-bars = {
-    'op': 'Ochutnávková pivnice',
-    'mw': 'Malt Worm',
-    'craft': 'Craftbeer bottle shop & bar',
-    'jbm': 'JBM Brew Lab Pub',
-    'fa': 'F.A. Bar Oranžová'
-}
-
 headers = ['EPM', 'Alk.', 'IBU']
 
 for line in sys.stdin:
@@ -21,4 +13,4 @@ for line in sys.stdin:
     for h in headers:
         if not h in d or not d[h]:
             d[h] = '--'
-    print("Notify: %s (by %s) :: %s :: EPM %s Alk. %s IBU %s :: %s :: %s" % (d['Pivo'], pivovar, typ, d['EPM'], d['Alk.'], d['IBU'], mesto, bars[d['Pivnice']]))
+    print("Notify: %s (by %s) :: %s :: EPM %s Alk. %s IBU %s :: %s :: %s" % (d['Pivo'], pivovar, typ, d['EPM'], d['Alk.'], d['IBU'], mesto, d['Pivnice']))

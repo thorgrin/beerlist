@@ -5,8 +5,8 @@ import json
 from collections import OrderedDict
 from datetime import datetime
 
-if len(sys.argv) != 5:
-	print("diff requires four arguments: new.json old.json pub_name state (added/removed)")
+if len(sys.argv) != 4:
+	print("diff requires four arguments: new.json old.json state (added/removed)")
 	exit(-1)
 
 try:
@@ -30,7 +30,6 @@ diff = list(map(list, new_set - old_set))
 if diff:
 	for beer in diff:
 		beer_dict = OrderedDict(zip(data_new['headers'], beer))
-		beer_dict['Pivnice'] = sys.argv[3]
-		beer_dict['Action'] = sys.argv[4]
+		beer_dict['Action'] = sys.argv[3]
 		beer_dict['Time'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 		print(json.dumps(beer_dict, ensure_ascii=False))

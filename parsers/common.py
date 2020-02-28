@@ -13,9 +13,16 @@ def download_html(url: str) -> str:
 	res.encoding = 'utf-8'
 	return res.text
 
-def parser_output(beers: List[List[str]], headers: List[str], args: List[str]) -> None:
-	if beers:
-		if len(args) > 1 and args[1] == 'json':
-			print(json.dumps({'headers': headers, 'beers': beers}, ensure_ascii=False))
-		else: 
-			print(tabulate(beers, headers=headers))
+def parser_output(beers: List[List[str]], headers: List[str], pivnice: str, args: List[str]) -> None:
+	if not beers:
+		return
+
+	if len(args) > 1 and args[1] == 'json':
+		# Add 'Pivnice' field to json output:
+		beers = list(map(lambda x: x + [pivnice], beers))
+		headers.append('Pivnice')
+
+		# Print the result as json
+		print(json.dumps({'headers': headers, 'beers': beers}, ensure_ascii=False))
+	else:
+		print(tabulate(beers, headers=headers))
