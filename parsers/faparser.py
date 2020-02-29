@@ -5,7 +5,7 @@ from xml.etree import ElementTree as ET
 import re, sys
 import common as beerlib
 
-html = beerlib.download_html('https://untappd.com/v/jbm-brew-lab-pub/4222393')
+html = beerlib.download_html('https://untappd.com/v/fa-bar-oranzova/1728532')
 if not html:
 	exit(-1)
 
@@ -38,4 +38,4 @@ for row in beers:
 		ibu = ''
 	output = output + [[title, style, alk, ibu, brewery]]
 
-beerlib.parser_output(output, headers, 'JBM Brew Lab Pub', sys.argv)
+beerlib.parser_output(output, headers, 'F.A. Bar Oranžová', sys.argv)

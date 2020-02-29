@@ -12,7 +12,7 @@ fi
 if [ -n "$1" ]; then
 	bars="$1"
 else
-	bars="mw op craft jbm"
+	bars="mw op craft jbm fa"
 fi
 
 for bar in $bars; do
@@ -23,8 +23,8 @@ for bar in $bars; do
 	${CWD}/../parsers/${bar}parser.py json > "$file_new"
 
 	# Compute the diff
-	add_diff=`${CWD}/beerdiff.py "$file_new" "$file_old" "$bar" "added"`
-	del_diff=`${CWD}/beerdiff.py "$file_old" "$file_new" "$bar" "removed"`
+	add_diff=`${CWD}/beerdiff.py "$file_new" "$file_old" "added"`
+	del_diff=`${CWD}/beerdiff.py "$file_old" "$file_new" "removed"`
 
 	# Log the new beers
 	if [ -n "$del_diff" ]; then

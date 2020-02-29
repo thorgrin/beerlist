@@ -8,6 +8,7 @@ This project aims to provide simple interface to get lists of beers from my favo
 * [Ochutnávková pivnice](http://ochutnavkovapivnice.cz/)
 * [Craftbeer bottle shop & bar](https://www.facebook.com/Craftbeerbottleshopbar/)
 * [JBM Brew Lab Pub](http://jbmbrewlab.cz/)
+* [F.A. Bar Oranžová](http://www.fabar.cz/)
 
 ## Howto use
 

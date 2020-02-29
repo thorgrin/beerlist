@@ -3,6 +3,10 @@
 import sys
 import json
 
-data = json.load(sys.stdin)
-index = data['headers'].index('Pivo')
-print(" | ".join([beer[0] for beer in data['beers']]))
+beers = []
+for line in sys.stdin:
+    data = json.loads(line)
+    index = data['headers'].index('Pivo')
+    beers += [beer[index] for beer in data['beers']]
+
+print(" | ".join(beers))

@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json, sys, re, requests
+import sys, re, json
 from xml.etree import ElementTree as ET
-from tabulate import tabulate
+import common as beerlib
 
 # first we need the post ID
-res = requests.get('https://m.facebook.com/Craftbeerbottleshopbar/', headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
-res.encoding = 'utf-8'
+html = beerlib.download_html('https://m.facebook.com/Craftbeerbottleshopbar/')
+if not html:
+	exit(-1)
+# first we need the post ID
 
 reg = re.compile('(<body.*</body>)', re.MULTILINE | re.DOTALL)
-body = reg.search(res.text).group(0)
+body = reg.search(html).group(0)
 
 page = ET.XML(body)
 articles = page.findall(".//div[@role='article']")
@@ -21,11 +23,11 @@ for article in articles:
 	data = json.loads(article.attrib['data-ft'])
 	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (data['top_level_post_id'], data['content_owner_id_new'])
 
-
 	# Okay, let's get the post
-	res = requests.get(post_url, headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
-	res.encoding = 'utf-8'
-	body = reg.search(res.text).group(0)
+	post_html = beerlib.download_html(post_url)
+	if not post_html:
+		continue
+	body = reg.search(post_html).group(0)
 
 	# Hope that last paragraph of post contains beers
 	page = ET.XML(body)
@@ -44,7 +46,7 @@ for article in articles:
 	beers = list(beers.itertext())
 
 	# Hope that the beer list format is the same
-	headers = ['Pivo', 'EPM', 'Pivovar', 'Typ']
+	headers = ['Pivo', 'Alk.', 'Pivovar', 'Typ']
 	output = []
 	for line in beers:
 		# Black Label #4 8,1% (Raven, Wild Ale)
@@ -53,11 +55,8 @@ for article in articles:
 			# Zlaté Prasátko 6,5%
 			m = re.match(' *(.+) ([0-9,\.]+%)', line)
 		if m:
-			output = output + [m.groups()]
+			output = output + [list(m.groups())]
 
 	if output:
-		if len(sys.argv) > 1 and sys.argv[1] == 'json':
-			print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
-		else:
-			print(tabulate(output, headers=headers))
+		beerlib.parser_output(output, headers, 'Craftbeer bottle shop & bar', sys.argv)
 		break

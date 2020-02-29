@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests
 from xml.etree import ElementTree as ET
-import re
-from tabulate import tabulate
-import json
-import sys
+import re, sys
+import common as beerlib
 
-res = requests.get('http://ochutnavkovapivnice.cz/prave_na_cepu/', headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
-res.encoding = 'utf-8'
-html = res.text
+html = beerlib.download_html('http://ochutnavkovapivnice.cz/prave_na_cepu/')
+if not html:
+	exit(-1)
 
 reg = re.compile('(<table.*</table>)', re.MULTILINE | re.DOTALL)
 html = reg.search(html).group(0)
@@ -24,9 +21,5 @@ for row in rows:
 	beer = next(tds)[0][0].text
 	values = [beer] + [col.text for col in tds]
 	output = output + [values]
-	#print(dict(zip(headers, values)))
 
-if len(sys.argv) > 1 and sys.argv[1] == 'json':
-	print(json.dumps({'headers': headers, 'beers': output}, ensure_ascii=False))
-else: 
-	print(tabulate(output, headers=headers))
+beerlib.parser_output(output, headers, 'Ochutnávková pivnice', sys.argv)
