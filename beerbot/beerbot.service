@@ -1,12 +1,12 @@
 [Unit]
 Description=IRC beerbot script
-Wants=beerbot-connection.service
+Requires=beerbot-connection.service
 After=beerbot-connection.service
 
 [Service]
 #EnvironmentFile=%h/.config/beerbot.conf
 EnvironmentFile=/etc/beerbot.conf
-ExecStart=/bin/sh -c '${BEERBOT_BIN}'
+ExecStart=/bin/bash '${BEERBOT_BIN}'
 RemainAfterExit=no
 Restart=on-failure
 

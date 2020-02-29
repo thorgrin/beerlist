@@ -13,15 +13,9 @@ fi
 
 CHANNEL_DIR="${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}"
 
-# TODO remove
-BEERBOT_CACHE_UPDATE=5
-IRC_CHANNEL="#beerbottest"
-CWD="/var/www/jezevec.eu/default/beer/beerbot"
-
 # Check that the channel exists
 if [ ! -f "${CHANNEL_DIR}/out" ]; then
-	echo "beerbot cannot find channel output file ${CHANNEL_DIR}/out" 1>&2
-	exit 2
+	echo "/j ${IRC_CHANNEL}" > "${IRC_DIR}/${IRC_SERVER}/in"
 fi
 
 # Do the main work
