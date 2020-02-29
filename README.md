@@ -28,8 +28,8 @@ python3 ./parsers/mwparser.py
 ```
 
 ### Run as web service under Apache:
-* check out the code to a web accessible directory with PHP support
-* change group of `cache` directory to that of the web server (e.g. www-data)
+* Check out the code to a web accessible directory with PHP support
+* Change group of `cache` directory to that of the web server (e.g. www-data)
 ```
 chgrp www-data cache
 chmod 6775 cache
@@ -40,8 +40,8 @@ chmod 6775 cache
 touch log/beerlog.json
 chgrp www-data log/beerlog.json
 ```
-* allow mod_rewrite (a2enmod rewrite)
-* allow .htaccess for the dir
+* Allow mod_rewrite (a2enmod rewrite)
+* Allow .htaccess for the dir
 ```
         <Directory /var/www/html/beer>
                 AllowOverride All
@@ -52,11 +52,24 @@ chgrp www-data log/beerlog.json
 Notifications can be easily pushed to a selected IRC channel by setting up an instance of ii (IRC file based client)
 ```
 apt-get install ii
-sudo cp beerbot/beerbot.service /etc/systemd/user/
+sudo cp beerbot/beerbot-connection.service /etc/systemd/user/
 # the config file must be accessible even for www-data, therefore this ugly place
 sudo cp beerbot/beerbot.conf /etc/
+systemctl --user daemon-reload
+systemctl --user enable beerbot-connection
+systemctl --user start beerbot-connection
+```
+To configure the IRC server, channel and bot name, edit the `beerbot.conf` file.
+
+### Let beerbot react to commands
+The beerbot can respond to IRC commands in form of `!pub` where `pub` is a shortcut of one of the supported pubs
+For this to work, you need to start the `beerbot-connection` service. Pushing notifications to IRC can be disabled.
+
+* Configure the path to the beerbot script in the `/etc/beerbot.conf`. It must be within the original directory structure.
+* The beerbot systemd service needs to be enabled:
+```
+sudo cp beerbot/beerbot.service /etc/systemd/user/
 systemctl --user daemon-reload
 systemctl --user enable beerbot
 systemctl --user start beerbot
 ```
-To configure the IRC server, channel and bot name, edit the `beerbot.conf` file.

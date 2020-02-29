@@ -1,0 +1,20 @@
+[Unit]
+Description=Beerbot IRC connection
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+#EnvironmentFile=%h/.config/beerbot.conf
+EnvironmentFile=/etc/beerbot.conf
+ExecStartPre=/bin/mkdir -p ${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}
+ExecStartPre=/usr/bin/mkfifo ${IRC_DIR}/${IRC_SERVER}/in
+ExecStartPre=/usr/bin/mkfifo ${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in
+ExecStartPre=/bin/chmod o+w ${IRC_DIR}/${IRC_SERVER}/in
+ExecStartPre=/bin/chmod o+w ${IRC_DIR}/${IRC_SERVER}/${IRC_CHANNEL}/in
+ExecStart=/usr/bin/ii -s ${IRC_SERVER} -n ${IRC_NICK} -i ${IRC_DIR}
+ExecStop=/bin/rm -rf ${IRC_DIR}
+RemainAfterExit=no
+Restart=on-failure
+
+[Install]
+WantedBy = multi-user.target
