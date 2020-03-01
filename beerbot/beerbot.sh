@@ -41,7 +41,7 @@ do
 			cat "$cache" | ${CWD}/../tools/json2titles.py > "${CHANNEL_DIR}/in"
 			;;
 		*)
-			echo "$nick: wtf?" > "${CHANNEL_DIR}/in"
+			echo "$nick: tvoje stara je $bar" > "${CHANNEL_DIR}/in"
 			;;
 	esac
 done
