@@ -20,7 +20,10 @@ articles = page.findall(".//div[@role='article']")
 
 # Look at all articles until some beers are found
 for article in articles:
-	data = json.loads(article.attrib['data-ft'])
+	data_element = article.get('data-ft')
+	if not data_element:
+		continue
+	data = json.loads(data_element)
 	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (data['top_level_post_id'], data['content_owner_id_new'])
 
 	# Okay, let's get the post
