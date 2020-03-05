@@ -56,7 +56,7 @@ for article in articles:
 		m = re.match(' *(.+) ([0-9,\.]+%) \(([^,]+), ?(.+)\)', line)
 		if not m:
 			# Zlaté Prasátko 6,5%
-			m = re.match(' *(.+) ([0-9,\.]+%)', line)
+			m = re.match(' *(.+) ([0-9,\.]+%)()()', line)
 		if m:
 			output = output + [list(m.groups())]
 
