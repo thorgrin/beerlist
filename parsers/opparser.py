@@ -11,6 +11,7 @@ if not html:
 
 reg = re.compile('(<table.*</table>)', re.MULTILINE | re.DOTALL)
 html = reg.search(html).group(0)
+html = html.replace('&', '&#038;')
 table = ET.XML(html)
 
 rows = iter(table)
