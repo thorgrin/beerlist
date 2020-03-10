@@ -10,7 +10,10 @@ if not html:
 	exit(-1)
 
 reg = re.compile('(<table.*</table>)', re.MULTILINE | re.DOTALL)
-html = reg.search(html).group(0)
+html = reg.search(html)
+if not html:
+        exit(-2)
+html = html.group(0)
 html = html.replace('&', '&#038;')
 table = ET.XML(html)
 
