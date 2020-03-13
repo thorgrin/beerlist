@@ -21,6 +21,10 @@ for bar in $bars; do
 
 	# Get update from the bar
 	${CWD}/../parsers/${bar}parser.py json > "$file_new"
+	if [ "$?" -ne 0 ]; then
+		# Skip further processing on error
+		continue;
+	fi
 
 	# Compute the diff
 	add_diff=`${CWD}/beerdiff.py "$file_new" "$file_old" "added"`
