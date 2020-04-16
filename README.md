@@ -74,3 +74,28 @@ systemctl --user daemon-reload
 systemctl --user enable beerbot
 systemctl --user start beerbot
 ```
+
+### Push Untappd beer notifications to IRC
+Untappd drinking notifications from your friends can be easily pushed to a selected IRC channel by setting up an instance of ii (IRC file based client).
+Pushing ordinary beer notifications from pubs can be disabled in `beerbot.conf`.
+```
+apt-get install ii
+sudo cp beerbot/beerbot-connection.service /etc/systemd/user/
+# the config file must be accessible even for www-data, therefore this ugly place
+sudo cp beerbot/beerbot.conf /etc/
+systemctl --user daemon-reload
+systemctl --user enable beerbot-connection
+systemctl --user start beerbot-connection
+```
+To configure the IRC server, channel and bot name, edit the `beerbot.conf` file.
+
+To enable Untappd notifications:
+* It is necessary to write Untappd user names and corresponding IRC nicks into `beerbot.conf` file.
+  ```
+  UNTAPPD_USERS="beeruser1 beeruser2"
+  UNTAPPD_IRC_NICKS="cervezaadicto1 cervezaadicto2"
+  ```
+* Add `update_untappd.sh` script to crontab
+  ```
+  */10 * * * * /path/to/tools/update_untappd.sh
+  ```
