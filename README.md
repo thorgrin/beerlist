@@ -49,8 +49,9 @@ chgrp www-data log/beerlog.json
         </Directory>
 ```
 
-### Push beer notifications to IRC
-Notifications can be easily pushed to a selected IRC channel by setting up an instance of ii (IRC file based client)
+### IRC Interaction
+The following features allow interacting with IRC. 
+To connect to a selected IRC channel, set up an instance of ii (IRC file based client)
 ```
 apt-get install ii
 sudo cp beerbot/beerbot-connection.service /etc/systemd/user/
@@ -61,6 +62,9 @@ systemctl --user enable beerbot-connection
 systemctl --user start beerbot-connection
 ```
 To configure the IRC server, channel and bot name, edit the `beerbot.conf` file.
+
+### Push new beer on tap notifications to IRC
+Notifications are enabled by default and can be disabled in `beerbot.conf`.
 
 ### Let beerbot react to commands
 The beerbot can respond to IRC commands in form of `!pub` where `pub` is a shortcut of one of the supported pubs
@@ -76,18 +80,7 @@ systemctl --user start beerbot
 ```
 
 ### Push Untappd beer notifications to IRC
-Untappd drinking notifications from your friends can be easily pushed to a selected IRC channel by setting up an instance of ii (IRC file based client).
-Pushing ordinary beer notifications from pubs can be disabled in `beerbot.conf`.
-```
-apt-get install ii
-sudo cp beerbot/beerbot-connection.service /etc/systemd/user/
-# the config file must be accessible even for www-data, therefore this ugly place
-sudo cp beerbot/beerbot.conf /etc/
-systemctl --user daemon-reload
-systemctl --user enable beerbot-connection
-systemctl --user start beerbot-connection
-```
-To configure the IRC server, channel and bot name, edit the `beerbot.conf` file.
+Untappd drinking notifications from your friends can be easily pushed to the configured IRC channel.
 
 To enable Untappd notifications:
 * It is necessary to write Untappd user names and corresponding IRC nicks into `beerbot.conf` file.
