@@ -15,8 +15,9 @@ reg = re.compile('(<body.*</body>)', re.MULTILINE | re.DOTALL)
 body = reg.search(html).group(0)
 
 page = ET.XML(body)
-articles = page.findall(".//div[@role='article']")
-
+#articles = page.findall(".//div[@role='article']")
+articles = page.findall(".//article")
+#print(body)
 
 # Look at all articles until some beers are found
 for article in articles:
@@ -25,6 +26,7 @@ for article in articles:
 		continue
 	data = json.loads(data_element)
 	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (data['top_level_post_id'], data['content_owner_id_new'])
+#	print(post_url)
 
 	# Okay, let's get the post
 	post_html = beerlib.download_html(post_url)
@@ -35,8 +37,10 @@ for article in articles:
 	# Hope that last paragraph of post contains beers
 	page = ET.XML(body)
 
-	# The relevant div has class either 'msg', 'cf' or 'bz'
-	beers = page.find(".//div[@class='msg']")
+	# The relevant div has class either 'ch', 'msg', 'cf' or 'bz'
+	beers = page.find(".//div[@class='ch']")
+	if not beers:
+		beers = page.find(".//div[@class='msg']")
 	if not beers:
 		beers = page.find(".//div[@class='cf']")
 	if not beers:
