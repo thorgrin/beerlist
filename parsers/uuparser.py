@@ -21,7 +21,7 @@ html = beerlib.download_html('https://untappd.com/user/' + USER)
 if not html:
     exit(-2)
 
-reg = re.compile('(<div id="main-stream.*)<a .*? more_checkins', re.MULTILINE | re.DOTALL)
+reg = re.compile('(<div id="main-stream.*?)<script', re.MULTILINE | re.DOTALL)
 body = reg.search(html)
 if not body:
     exit(-3)
@@ -40,7 +40,7 @@ except Exception:
     data = {}
 
 try:
-    page = ET.XML(content)
+    page = ET.XML(content + '</div>')
     checkin = page.find('./div[@data-checkin-id]')
     checkin_id = checkin.get('data-checkin-id')
     saved_id = data.get(USER)
@@ -59,5 +59,5 @@ try:
             data[USER] = checkin_id
             json.dump(data, f)
 
-except Exception:
+except Exception as e:
     exit(-6)
