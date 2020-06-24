@@ -8,6 +8,14 @@ import sys
 import json
 import common as beerlib
 
+
+def extract_text(checkin):
+    p = checkin.find('.//p[@class="text"]')
+    text = list(p.itertext())
+    text = [x.strip() for x in text if x.strip()]
+    return None if len(text) < 5 or text[1].find('drinking') == -1 else text
+
+
 if len(sys.argv) != 3:
     print("uuparser requires two arguments: untappd_username irc_nick")
     exit(-1)
@@ -40,24 +48,49 @@ except Exception:
     data = {}
 
 try:
-    page = ET.XML(content + '</div>')
-    checkin = page.find('./div[@data-checkin-id]')
-    checkin_id = checkin.get('data-checkin-id')
     saved_id = data.get(USER)
-    if saved_id is not None and saved_id != checkin_id:
-        # user had a good time!
-        p = checkin.find('.//p[@class="text"]')
-        text = list(p.itertext())
-        text = [x.strip() for x in text if x.strip()]
-        if len(text) < 5 or text[1].find('drinking') == -1:
-            # something fishy
-            exit(-5)
-        print('Notify: {0} leje {1} (by {2})'.format(IRC_NICK, text[2], text[4]))
+    page = ET.XML(content + '</div>')
+    checkins = page.findall('./div[@data-checkin-id]')
+    if len(checkins) == 0:
+        exit(-5)
+
+    latest_check = checkins[0]
+    latest_id = latest_check.get('data-checkin-id')
+    if saved_id is not None and saved_id != latest_id:
+        prev_idx = -1
+        for idx, checkin in enumerate(checkins):
+            if saved_id == checkin.get('data-checkin-id'):
+                prev_idx = idx
+                break
+        if prev_idx == -1:
+            # 5+ beers in an update interval? what a day! notify last beer only
+            prev_idx = 1
+
+        additional = []
+        for i in range(2, prev_idx + 1):
+            text = extract_text(checkins[i])
+            if text is None:
+                exit(-6)
+            additional.append('{0} (by {1})'.format(text[2], text[4]))
+
+        output = ''
+        text = extract_text(latest_check)
+        if text is None:
+            exit(-7)
+
+        if len(text) >= 7 and text[5] == 'at':
+            venue = 'doma' if text[6] == 'Untappd at Home' else 'v ' + text[6]
+            output = 'Notify: {0} sedi {1} a leje {2} (by {3})'.format(IRC_NICK, venue, text[2], text[4])
+        else:
+            output = 'Notify: {0} leje {1} (by {2})'.format(IRC_NICK, text[2], text[4])
+        if len(additional) > 0:
+            output += ', v sobe ma uz ' + ', '.join(additional)
+        print(output)
     # save data
-    if saved_id != checkin_id:
+    if saved_id != latest_id:
         with open(CACHE_FILE, 'w') as f:
-            data[USER] = checkin_id
+            data[USER] = latest_id
             json.dump(data, f)
 
 except Exception as e:
-    exit(-6)
+    exit(-8)

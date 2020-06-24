@@ -3,3 +3,4 @@ cache/*.json
 log/beerlog.json
 venv
 __pycache__
+.vscode
