@@ -16,6 +16,13 @@ def extract_text(checkin):
     return None if len(text) < 5 or text[1].find('drinking') == -1 else text
 
 
+def extract_rating(checkin):
+    div = checkin.find('.//div[@data-rating]')
+    if div is not None:
+        return div.get('data-rating')
+    return None
+
+
 if len(sys.argv) != 3:
     print("uuparser requires two arguments: untappd_username irc_nick")
     exit(-1)
@@ -67,11 +74,15 @@ try:
             prev_idx = 1
 
         additional = []
-        for i in range(2, prev_idx + 1):
+        for i in range(1, prev_idx):
             text = extract_text(checkins[i])
             if text is None:
                 exit(-6)
-            additional.append('{0} (by {1})'.format(text[2], text[4]))
+            output = '{0} (by {1})'.format(text[2], text[4])
+            rating = extract_rating(checkins[i])
+            if rating is not None:
+                output += ' :: Hodnoceni: ' + rating
+            additional.append(output)
 
         output = ''
         text = extract_text(latest_check)
@@ -83,6 +94,9 @@ try:
             output = 'Notify: {0} sedi {1} a leje {2} (by {3})'.format(IRC_NICK, venue, text[2], text[4])
         else:
             output = 'Notify: {0} leje {1} (by {2})'.format(IRC_NICK, text[2], text[4])
+        rating = extract_rating(latest_check)
+        if rating is not None:
+            output += ' :: Hodnoceni: ' + rating
         if len(additional) > 0:
             output += ', v sobe ma uz ' + ', '.join(additional)
         print(output)
