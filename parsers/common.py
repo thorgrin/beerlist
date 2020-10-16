@@ -6,9 +6,12 @@ from xml.etree import ElementTree as ET
 from tabulate import tabulate
 from typing import List
 
-def download_html(url: str) -> str:
-	try: 
-		res = requests.get(url, headers={'Connection': 'keep-alive', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'})
+def download_html(url: str, user_agent: str = "") -> str:
+	try:
+		if not user_agent:
+			user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
+		#res = requests.get(url, headers={'Connection': 'keep-alive', 'User-Agent': 'curl/7.54.1'})
+		res = requests.get(url, headers={'Connection': 'keep-alive', 'User-Agent': user_agent})
 	except requests.exceptions.RequestException as e:
 		print('Exception was caught while reading from \''+ url + '\': ' + str(e), file=sys.stderr);
 		return ''

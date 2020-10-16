@@ -5,35 +5,30 @@ import sys, re, json
 from xml.etree import ElementTree as ET
 import common as beerlib
 
+curl_ua = 'curl/7.54.1'
+
 # first we need the post ID
-html = beerlib.download_html('https://m.facebook.com/Craftbeerbottleshopbar/')
+html = beerlib.download_html('https://m.facebook.com/page_content_list_view/more/?page_id=1871132519814729&start_cursor=10000&num_to_fetch=10&surface_type=timeline', curl_ua)
 if not html:
 	exit(-1)
-# first we need the post ID
 
+#print(html)
 reg = re.compile('(<body.*</body>)', re.MULTILINE | re.DOTALL)
-body = reg.search(html).group(0)
 
-page = ET.XML(body)
-#articles = page.findall(".//div[@role='article']")
-articles = page.findall(".//article")
-#print(body)
+# find post ids
+ids = re.findall('top_level_post_id&quot;:&quot;([0-9]+)', html)
 
 # Look at all articles until some beers are found
-for article in articles:
-	data_element = article.get('data-ft')
-	if not data_element:
-		continue
-	data = json.loads(data_element)
-	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (data['top_level_post_id'], data['content_owner_id_new'])
-#	print(post_url)
+for content_id in ids:
+	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (content_id, '1871132519814729')
+	#print(post_url)
 
 	# Okay, let's get the post
-	post_html = beerlib.download_html(post_url)
+	post_html = beerlib.download_html(post_url, curl_ua)
 	if not post_html:
 		continue
 	body = reg.search(post_html).group(0)
-
+	#print(body)
 	# Hope that last paragraph of post contains beers
 	page = ET.XML(body)
 
