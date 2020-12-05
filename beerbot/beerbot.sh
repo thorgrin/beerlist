@@ -21,7 +21,8 @@ fi
 # Do the main work
 tail -n 0 -F "${CHANNEL_DIR}/out"| while read line
 do
-	pattern='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} <([^ ]+)> !([a-z]+)$'
+	#pattern='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} <([^ ]+)> !([a-z]+)$'
+	pattern='^[0-9]+ <([^ ]+)> !([a-z]+)$'
 	[[ $line =~ $pattern ]]
 	nick=${BASH_REMATCH[1]}
 	bar=${BASH_REMATCH[2]}
