@@ -15,6 +15,8 @@ if not html:
         exit(-2)
 html = html.group(0)
 html = html.replace('&', '&#038;')
+html = html.replace('\t', '')
+html = re.sub(r'</?a[^>]*>', '', html)
 table = ET.XML(html)
 
 rows = iter(table)
@@ -22,7 +24,7 @@ headers = [col[0].text for col in next(rows)]
 output = []
 for row in rows:
 	tds = iter(row)
-	beer = next(tds)[0][0].text
+	beer = next(tds)[0].text
 	values = [beer] + [col.text for col in tds]
 	output = output + [values]
 
