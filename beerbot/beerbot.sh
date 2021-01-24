@@ -48,6 +48,7 @@ do
 			detailed=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/nakazeni-vyleceni-umrti-testy.min.json`
 			detailed_tests=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/testy.json`
 			vaccinations=`curl -s https://share.uzis.cz/s/ZEAZtS4dWQXKWF4/download`
+			pes=`curl -s 'https://share.uzis.cz/s/BRfppYFpNTddAy4/download?path=%2F&files=pes_CR_verze2.csv'`
 			tests_overall=`echo $overview| jq '.data[0].provedene_testy_celkem'`
 			tests_overall_atg=`echo $overview| jq '.data[0].provedene_antigenni_testy_celkem'`
 			tests_yesterday=`echo $overview| jq '.data[0].provedene_testy_vcerejsi_den'`
@@ -64,7 +65,9 @@ do
 			positive_tests=`echo "scale=2; 100 * $infected_yesterday / $tests_yesterday" | bc`
 			vaccinations_overall=`echo "$vaccinations" | tail -n+2 | awk -F ',' '//{sum+=$2} END{print sum}'`
 			vaccinations_yesterday=`echo "$vaccinations" | tail -n1 | cut -d ',' -f 2`
-			echo "active: $active | infected: $infected_overall (+$infected_yesterday, +$infected_today) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall (+$vaccinations_yesterday)" > "${CHANNEL_DIR}/in"
+			pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
+			r_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 10 | xargs printf %.3f`
+			echo "active: $active | infected: $infected_overall (+$infected_yesterday, +$infected_today) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall (+$vaccinations_yesterday) | PES: $pes_yesterday | R: $r_yesterday" > "${CHANNEL_DIR}/in"
 			;;
 		nehody)
 			curl -s https://d2g9cow0nr2qp.cloudfront.net/?q=$(echo -n "{ 'from': `date --date='00:00 yesterday' '+%s'`, 'to': `date --date='23:59:59 yesterday' '+%s'`, 'all': 'true' }" | base64) | jq '.["ČR"] | "accidents: " + (.PN | tostring) + " | dead: " + (.M | tostring) + " | serious injury: " + (.TR | tostring) + " | light injury: " + (.LR | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
