@@ -47,7 +47,7 @@ do
 			overview=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/zakladni-prehled.min.json`
 			detailed=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/nakazeni-vyleceni-umrti-testy.min.json`
 			detailed_tests=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/testy.json`
-			vaccinations=`curl -s https://share.uzis.cz/s/ZEAZtS4dWQXKWF4/download`
+			vaccinations=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani.json`
 			pes=`curl -s 'https://share.uzis.cz/s/BRfppYFpNTddAy4/download?path=%2F&files=pes_CR_verze2.csv'`
 			tests_overall=`echo $overview| jq '.data[0].provedene_testy_celkem'`
 			tests_overall_atg=`echo $overview| jq '.data[0].provedene_antigenni_testy_celkem'`
@@ -63,11 +63,13 @@ do
 			deceased=`echo $overview | jq '.data[0].umrti'`
 			deceased_yesterday=`echo $detailed | jq '((.data[-1].kumulativni_pocet_umrti - .data[-2].kumulativni_pocet_umrti))'`
 			positive_tests=`echo "scale=2; 100 * $infected_yesterday / $tests_yesterday" | bc`
-			vaccinations_overall=`echo "$vaccinations" | tail -n+2 | awk -F ',' '//{sum+=$NF} END{print sum}'`
-			vaccinations_yesterday=`echo "$vaccinations" | tail -n1 | awk -F ',' '//{print $NF}'`
-			pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
+			vaccinations_overall=`echo "$vaccinations" | jq '.data[] | .celkem_davek' | awk '//{sum+=$1} END{print sum}'`
+			vaccinations_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .celkem_davek' | awk '//{sum+=$1} END{print sum}'`
+			vaccinations_second_overall=`echo "$vaccinations" | jq '.data[] | .druhych_davek' | awk '//{sum+=$1} END{print sum}'`
+			vaccinations_second_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .druhych_davek' | awk '//{sum+=$1} END{print sum}'`
+pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
 			r_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 10 | xargs printf %.3f`
-			echo "active: $active | infected: $infected_overall (+$infected_yesterday, +$infected_today) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall (+$vaccinations_yesterday) | PES: $pes_yesterday | R: $r_yesterday" > "${CHANNEL_DIR}/in"
+			echo "active: $active | infected: $infected_overall (+$infected_yesterday, +$infected_today) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall/$vaccinations_second_overall (+$vaccinations_yesterday/$vaccinations_second_yesterday) | PES: $pes_yesterday | R: $r_yesterday" > "${CHANNEL_DIR}/in"
 			;;
 		nehody)
 			curl -s https://d2g9cow0nr2qp.cloudfront.net/?q=$(echo -n "{ 'from': `date --date='00:00 yesterday' '+%s'`, 'to': `date --date='23:59:59 yesterday' '+%s'`, 'all': 'true' }" | base64) | jq '.["ČR"] | "accidents: " + (.PN | tostring) + " | dead: " + (.M | tostring) + " | serious injury: " + (.TR | tostring) + " | light injury: " + (.LR | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
