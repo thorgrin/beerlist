@@ -46,8 +46,8 @@ do
 #			curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/nakazeni-vyleceni-umrti-testy.min.json | jq '"active: " + (.data[-1].kumulativni_pocet_nakazenych - .data[-1].kumulativni_pocet_vylecenych - .data[-1].kumulativni_pocet_umrti | tostring) + " | infected: " + (.data[-1].kumulativni_pocet_nakazenych | tostring) + " (+" + ((.data[-1].kumulativni_pocet_nakazenych - .data[-2].kumulativni_pocet_nakazenych ) | tostring) + ") | tested: " + (.data[-1].kumulativni_pocet_testu | tostring) + " (+" + ((.data[-1].kumulativni_pocet_testu - .data[-2].kumulativni_pocet_testu) | tostring) + ") | temporarily feeling better: " + (.data[-1].kumulativni_pocet_vylecenych | tostring) + " (+" + ((.data[-1].kumulativni_pocet_vylecenych - .data[-2].kumulativni_pocet_vylecenych) | tostring) + ")" + " | deceased: " + (.data[-1].kumulativni_pocet_umrti | tostring) + " (+" + ((.data[-1].kumulativni_pocet_umrti - .data[-2].kumulativni_pocet_umrti) | tostring) + ")"' | xargs echo > "${CHANNEL_DIR}/in"
 			overview=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/zakladni-prehled.min.json`
 			detailed=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/nakazeni-vyleceni-umrti-testy.min.json`
-			detailed_tests=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/testy.json`
-			vaccinations=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani.json`
+			detailed_tests=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/testy.min.json`
+			vaccinations=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani.min.json`
 			pes=`curl -s 'https://share.uzis.cz/s/BRfppYFpNTddAy4/download?path=%2F&files=pes_CR_verze2.csv'`
 			tests_overall=`echo $overview| jq '.data[0].provedene_testy_celkem'`
 			tests_overall_atg=`echo $overview| jq '.data[0].provedene_antigenni_testy_celkem'`
@@ -73,6 +73,10 @@ pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
 			;;
 		nehody)
 			curl -s https://d2g9cow0nr2qp.cloudfront.net/?q=$(echo -n "{ 'from': `date --date='00:00 yesterday' '+%s'`, 'to': `date --date='23:59:59 yesterday' '+%s'`, 'all': 'true' }" | base64) | jq '.["ČR"] | "accidents: " + (.PN | tostring) + " | dead: " + (.M | tostring) + " | serious injury: " + (.TR | tostring) + " | light injury: " + (.LR | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
+			;;
+		btc)
+			date=`date -u +%Y-%m-%dT%H:%M:%S.000Z`
+			curl -s "https://www.bitstamp.net/api-internal/market/prices/?step=1800&start=${date}&end=${date}&pairs=btcusd" | jq '"$" + .data[0]["price"]' | xargs echo > "${CHANNEL_DIR}/in"
 			;;
 		*)
 			echo "$nick: tvoje stara je $bar" > "${CHANNEL_DIR}/in"
