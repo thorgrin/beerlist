@@ -77,9 +77,9 @@ pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
 		nehody)
 			curl -s https://d2g9cow0nr2qp.cloudfront.net/?q=$(echo -n "{ 'from': `date --date='00:00 yesterday' '+%s'`, 'to': `date --date='23:59:59 yesterday' '+%s'`, 'all': 'true' }" | base64) | jq '.["ČR"] | "accidents: " + (.PN | tostring) + " | dead: " + (.M | tostring) + " | serious injury: " + (.TR | tostring) + " | light injury: " + (.LR | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
 			;;
-		btc)
+		btc | eth)
 			#curl -s 'https://www.bitstamp.net/api-internal/market/prices/?step=60&start='`date -u --date="day ago" +%Y-%m-%dT%H:%M:%S.000Z`'&end='`date -u +%Y-%m-%dT%H:%M:%S.999Z`'&pairs=btcusd'  | jq -r '.data[0]["price"] + " " +  .data[0]["history"][0]["open"] + " " + .data[0]["history"][-60]["open"]' | awk '//{printf("BTC: $%.2f | %+.2f%% (1h) | %+.2f%% (24h)\n", $1, 100*$1/$3-100, 100*$1/$2-100)}' > "${CHANNEL_DIR}/in"
-			curl -s https://www.bitstamp.net/api-internal/price-history/btcusd/ | jq -r '.data["latest"]["price"] + " " + (.data["prices"]["hour"]["percent_change"]|tostring) + " " + (.data["prices"]["day"]["percent_change"]|tostring) + " " + (.data["prices"]["week"]["percent_change"]|tostring)' | awk '//{printf("BTC: $%.2f | %+.2f%% (1h) | %+.2f%% (1d) | %+.2f%% (1w)\n", $1, $2, $3, $4)}' > "${CHANNEL_DIR}/in"
+			curl -s https://www.bitstamp.net/api-internal/price-history/${bar}usd/ | jq -r '.data["latest"]["price"] + " " + (.data["prices"]["hour"]["percent_change"]|tostring) + " " + (.data["prices"]["day"]["percent_change"]|tostring) + " " + (.data["prices"]["week"]["percent_change"]|tostring)' | awk '//{printf("%s: $%.2f | %+.2f%% (1h) | %+.2f%% (1d) | %+.2f%% (1w)\n", toupper("'$bar'"), $1, $2, $3, $4)}' > "${CHANNEL_DIR}/in"
 			;;
 		*)
 			echo "$nick: tvoje stara je $bar" > "${CHANNEL_DIR}/in"
