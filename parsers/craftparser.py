@@ -53,4 +53,7 @@ for content_id in ids:
 
 		if output:
 			beerlib.parser_output(output, headers, 'Craftbeer bottle shop & bar', sys.argv)
-			exit()
+			exit(0)
+
+# nothing was found
+exit(1)
