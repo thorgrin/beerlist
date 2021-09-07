@@ -3,12 +3,6 @@ RedirectMatch 404 /\.git
 RewriteEngine on
 RewriteBase "/beer"
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !=/index.php
+RewriteCond %{REQUEST_URI} !=/beer/index.php
 RewriteRule "^([^/]+)$" /beer/index.php?p=$1 [L]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !=/index.php
 RewriteRule "([^/]+)/([^/]+)" /beer/index.php?p=$1&t=$2 [L]
