@@ -81,6 +81,9 @@ do
 			#curl -s 'https://www.bitstamp.net/api-internal/market/prices/?step=60&start='`date -u --date="day ago" +%Y-%m-%dT%H:%M:%S.000Z`'&end='`date -u +%Y-%m-%dT%H:%M:%S.999Z`'&pairs=btcusd'  | jq -r '.data[0]["price"] + " " +  .data[0]["history"][0]["open"] + " " + .data[0]["history"][-60]["open"]' | awk '//{printf("BTC: $%.2f | %+.2f%% (1h) | %+.2f%% (24h)\n", $1, 100*$1/$3-100, 100*$1/$2-100)}' > "${CHANNEL_DIR}/in"
 			curl -s https://www.bitstamp.net/api-internal/price-history/${bar}usd/ | jq -r '.data["latest"]["price"] + " " + (.data["prices"]["hour"]["percent_change"]|tostring) + " " + (.data["prices"]["day"]["percent_change"]|tostring) + " " + (.data["prices"]["week"]["percent_change"]|tostring)' | awk '//{printf("%s: $%.2f | %+.2f%% (1h) | %+.2f%% (1d) | %+.2f%% (1w)\n", toupper("'$bar'"), $1, $2, $3, $4)}' > "${CHANNEL_DIR}/in"
 			;;
+		event | events)
+			curl -s 'https://events.gcm.cz/api.php?action=events&from='`date --date='today' +%Y-%m-%d`'&to='`date --date='next month' +%Y-%m-%d`'&lat=49.1950602&lon=16.6068371&radius=10&requestId=1' | jq -r '.events | reduce .[] as $event (""; . + "(" + $event.gcid + ") " + $event.name + "|" + $event.date_from + "\n" )' | head -n-1 | head -n 4 | while IFS='|' read e d; do echo -n "$e ["`date --date="$d" "+%a %d %b %Y %R"`"] | "; done | sed 's/| $/\n/g' > "${CHANNEL_DIR}/in"
+			;;
 		*)
 			echo "$nick: tvoje stara je $bar" > "${CHANNEL_DIR}/in"
 			;;
