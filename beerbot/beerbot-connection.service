@@ -4,6 +4,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
+StandardOutput=null
 #EnvironmentFile=%h/.config/beerbot.conf
 EnvironmentFile=/etc/beerbot.conf
 ExecStartPre=/bin/rm -rf ${IRC_DIR}
