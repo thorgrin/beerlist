@@ -68,11 +68,15 @@ do
 			positive_tests=`echo "scale=2; 100 * $infected_yesterday / $tests_yesterday" | bc`
 			vaccinations_overall=`echo "$vaccinations" | jq '.data[] | .celkem_davek' | awk '//{sum+=$1} END{print sum}'`
 			vaccinations_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .celkem_davek' | awk '//{sum+=$1} END{print sum}'`
+			vaccinations_first_overall=`echo "$vaccinations" | jq '.data[] | .prvnich_davek' | awk '//{sum+=$1} END{print sum}'`
+			vaccinations_first_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .prvnich_davek' | awk '//{sum+=$1} END{print sum}'`
 			vaccinations_second_overall=`echo "$vaccinations" | jq '.data[] | .druhych_davek' | awk '//{sum+=$1} END{print sum}'`
 			vaccinations_second_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .druhych_davek' | awk '//{sum+=$1} END{print sum}'`
+			vaccinations_third_overall=$((${vaccinations_overall} - ${vaccinations_first_overall} - ${vaccinations_second_overall}))
+			vaccinations_third_yesterday=$((${vaccinations_yesterday} - ${vaccinations_first_yesterday} - ${vaccinations_second_yesterday}))
 			pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
 			r_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 10 | xargs printf %.3f`
-			echo "active: $active | infected: $infected_overall (+$infected_yesterday [1d], $infected_week_diff [1w diff]) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall/$vaccinations_second_overall (+$vaccinations_yesterday/$vaccinations_second_yesterday) | PES: $pes_yesterday | R: $r_yesterday" > "${CHANNEL_DIR}/in"
+			echo "active: $active | infected: $infected_overall (+$infected_yesterday [1d], $infected_week_diff [1w diff]) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_first_overall/$vaccinations_second_overall/$vaccinations_third_overall (+$vaccinations_yesterday/$vaccinations_second_yesterday/$vaccinations_third_yesterday) | PES: $pes_yesterday | R: $r_yesterday" > "${CHANNEL_DIR}/in"
 			;;
 		nehody)
 			curl -s https://d2g9cow0nr2qp.cloudfront.net/?q=$(echo -n "{ 'from': `date --date='00:00 yesterday' '+%s'`, 'to': `date --date='23:59:59 yesterday' '+%s'`, 'all': 'true' }" | base64) | jq '.["ČR"] | "accidents: " + (.PN | tostring) + " | dead: " + (.M | tostring) + " | serious injury: " + (.TR | tostring) + " | light injury: " + (.LR | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
