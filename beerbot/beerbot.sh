@@ -32,7 +32,7 @@ do
 	fi
 
 	case $bar in
-		op|mw|craft|fa|jbm)
+		op|mw|craft|fa|jbm|pa)
 			# Update cache if necessary
 			cache="${CWD}/../cache/$bar.json"
 			if test `find "$cache" -mmin +${BEERBOT_CACHE_UPDATE}`; then
