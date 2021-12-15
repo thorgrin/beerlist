@@ -2,31 +2,33 @@
 # -*- coding: utf-8 -*-
 
 import re, sys
-from xml.etree import ElementTree as ET
+from bs4 import BeautifulSoup
 import common as beerlib
 
 html = beerlib.download_html('https://maltworm.cz/dnes-na-cepu/')
 if not html:
 	exit(-1)
 
-reg = re.compile('(<body.*</body>)', re.MULTILINE | re.DOTALL)
-body = reg.search(html).group(0)
-content = re.sub('<script.*</script>', '', body, flags=re.MULTILINE | re.DOTALL)
+soup = BeautifulSoup(html, 'html.parser')
 
-table = ET.XML(content)
-articles = table.findall(".//article")
+# Fin all articles that are not under a hidden section
+displayed = soup.select('section:not(.elementor-hidden-desktop) section article')
 
 headers = ['Pivo', 'Typ', 'EPM', 'Alk.', 'IBU', 'Pivovar', 'Město']
 output = []
-for article in articles:
-	beer = article.find(".//p[@class='elementor-heading-title elementor-size-default']")
-	info = article.findall(".//span[@class='elementor-icon-list-text']")
+for article in displayed:
+	beer = article.find('p', attrs={'class': ['elementor-heading-title', 'elementor-size-default']})
+	info = article.find_all('span', attrs={'class': 'elementor-icon-list-text'})
+	# print(info)
 	info = iter(info)
-	values = [beer.text] + ["".join(i.itertext()) for i in info]
+	if not info:
+		continue
+	values = [beer.text] + ["".join(i.text) for i in info]
 
 	# get rid of 'IBU:' prefix
 	ibu_pos = headers.index('IBU')
-	values[ibu_pos] = values[ibu_pos].replace('IBU: ', '')
+	if (len(values) > ibu_pos):
+		values[ibu_pos] = values[ibu_pos].replace('IBU: ', '')
 
 	output = output + [values]
 
