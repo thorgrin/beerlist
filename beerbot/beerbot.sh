@@ -42,41 +42,50 @@ do
 			cat "$cache" | ${CWD}/../tools/json2titles.py > "${CHANNEL_DIR}/in"
 			;;
 		korona)
-#			curl -s https://api.apify.com/v2/key-value-stores/K373S4uCFR9W1K8ei/records/LATEST?disableRedirect=true | jq '"active: " + (.active | tostring) + " | infected: " + (.infected | tostring) + " (+" + (.infectedDaily[-1].value | tostring) + "|+" + (.infected - reduce .infectedDaily[].value as $line (0; . + $line) | tostring) + ") | tested: " + (.totalTested | tostring) + " (+" + (.numberOfTestedGraph[-1].value | tostring) + ") | temporarily feeling better: " + (.recovered | tostring) + " | deceased: " + (.deceased | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
-#			curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/nakazeni-vyleceni-umrti-testy.min.json | jq '"active: " + (.data[-1].kumulativni_pocet_nakazenych - .data[-1].kumulativni_pocet_vylecenych - .data[-1].kumulativni_pocet_umrti | tostring) + " | infected: " + (.data[-1].kumulativni_pocet_nakazenych | tostring) + " (+" + ((.data[-1].kumulativni_pocet_nakazenych - .data[-2].kumulativni_pocet_nakazenych ) | tostring) + ") | tested: " + (.data[-1].kumulativni_pocet_testu | tostring) + " (+" + ((.data[-1].kumulativni_pocet_testu - .data[-2].kumulativni_pocet_testu) | tostring) + ") | temporarily feeling better: " + (.data[-1].kumulativni_pocet_vylecenych | tostring) + " (+" + ((.data[-1].kumulativni_pocet_vylecenych - .data[-2].kumulativni_pocet_vylecenych) | tostring) + ")" + " | deceased: " + (.data[-1].kumulativni_pocet_umrti | tostring) + " (+" + ((.data[-1].kumulativni_pocet_umrti - .data[-2].kumulativni_pocet_umrti) | tostring) + ")"' | xargs echo > "${CHANNEL_DIR}/in"
-			overview=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/zakladni-prehled.min.json`
-			detailed=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/nakazeni-vyleceni-umrti-testy.min.json`
-			detailed_tests=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/testy.min.json`
-			vaccinations=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani.min.json`
-#			vacc_dist=`curl -s https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.min.json`
-			pes=`curl -s 'https://share.uzis.cz/s/BRfppYFpNTddAy4/download?path=%2F&files=pes_CR_verze2.csv'`
-			tests_overall=`echo $overview| jq '.data[0].provedene_testy_celkem'`
-			tests_overall_atg=`echo $overview| jq '.data[0].provedene_antigenni_testy_celkem'`
-			tests_yesterday=`echo $overview| jq '.data[0].provedene_testy_vcerejsi_den'`
-			tests_yesterday_atg=`echo $overview| jq '.data[0].provedene_antigenni_testy_vcerejsi_den'`
-			hospitalised=`echo $overview | jq '.data[0].aktualne_hospitalizovani'`
-			active=`echo $overview | jq '.data[0].aktivni_pripady'`
-			infected_overall=`echo $overview | jq '.data[0].potvrzene_pripady_celkem'`
-			infected_yesterday=`echo $overview | jq '.data[0].potvrzene_pripady_vcerejsi_den'`
-			infected_7d=`echo $detailed | jq '((.data[-1].kumulativni_pocet_nakazenych - .data[-8].kumulativni_pocet_nakazenych))'`
-			infected_7d_ago=`echo $detailed | jq '((.data[-8].kumulativni_pocet_nakazenych - .data[-9].kumulativni_pocet_nakazenych))'`
-			infected_week_diff=`echo "$infected_yesterday $infected_7d_ago" | awk '//{printf("%+d", $1 - $2)}'`
-			cured=`echo $overview | jq '.data[0].vyleceni'`
-			cured_yesterday=`echo $detailed | jq '((.data[-1].kumulativni_pocet_vylecenych - .data[-2].kumulativni_pocet_vylecenych))'`
-			deceased=`echo $overview | jq '.data[0].umrti'`
-			deceased_yesterday=`echo $detailed | jq '((.data[-1].kumulativni_pocet_umrti - .data[-2].kumulativni_pocet_umrti))'`
+			today=`date --date="today" +%Y-%m-%d`
+			yesterday=`date --date="yesterday" +%Y-%m-%d`
+			last_week=`date --date="8 days ago" +%Y-%m-%d`
+			overview=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/zakladni-prehled/$today?apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
+			active=`echo $overview | jq '.aktivni_pripady'`
+			tests_overall=`echo $overview| jq '.provedene_testy_celkem'`
+			tests_overall_atg=`echo $overview| jq '.provedene_antigenni_testy_celkem'`
+			tests_yesterday=`echo $overview| jq '.provedene_testy_vcerejsi_den'`
+			tests_yesterday_atg=`echo $overview| jq '.provedene_antigenni_testy_vcerejsi_den'`
+			hospitalised=`echo $overview | jq '.aktualne_hospitalizovani'`
+			active=`echo $overview | jq '.aktivni_pripady'`
+			infected_overall=`echo $overview | jq '.potvrzene_pripady_celkem'`
+			infected_yesterday=`echo $overview | jq '.potvrzene_pripady_vcerejsi_den'`
 			positive_tests=`echo "scale=2; 100 * $infected_yesterday / $tests_yesterday" | bc`
-			vaccinations_overall=`echo "$vaccinations" | jq '.data[] | .celkem_davek' | awk '//{sum+=$1} END{print sum}'`
-			vaccinations_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .celkem_davek' | awk '//{sum+=$1} END{print sum}'`
-			vaccinations_first_overall=`echo "$vaccinations" | jq '.data[] | .prvnich_davek' | awk '//{sum+=$1} END{print sum}'`
-			vaccinations_first_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .prvnich_davek' | awk '//{sum+=$1} END{print sum}'`
-			vaccinations_second_overall=`echo "$vaccinations" | jq '.data[] | .druhych_davek' | awk '//{sum+=$1} END{print sum}'`
-			vaccinations_second_yesterday=`echo "$vaccinations" | jq '.data[] | select (.datum | contains("'$(date --date="yesterday" +%Y-%m-%d)'")) | .druhych_davek' | awk '//{sum+=$1} END{print sum}'`
-			vaccinations_third_overall=$((${vaccinations_overall} - ${vaccinations_first_overall} - ${vaccinations_second_overall}))
+			cured=`echo $overview | jq '.vyleceni'`
+			deceased=`echo $overview | jq '.umrti'`
+			
+			detailed_7d_ago=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-vyleceni-umrti-testy/$last_week?apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
+			infected_7d_ago=`echo $detailed_7d_ago | jq '.prirustkovy_pocet_nakazenych'`
+			infected_week_diff=`echo "$infected_yesterday $infected_7d_ago" | awk '//{printf("%+d", $1 - $2)}'`
+			
+			detailed_yesterday=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-vyleceni-umrti-testy/$yesterday?apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
+			cured_yesterday=`echo $detailed_yesterday | jq '.prirustkovy_pocet_vylecenych'`
+			deceased_yesterday=`echo $detailed_yesterday | jq '.prirustkovy_pocet_umrti'`
+			
+			# This API sucks so we are getting only values for yesterday
+			url="/api/v3/ockovani?page=1&datum%5Bbefore%5D=$yesterday&datum%5Bafter%5D=$yesterday&apiToken=$KORONA_TOKEN"
+			while true ; do
+				[[ "$url" == "null" ]] && break
+				output=`curl -s "https://onemocneni-aktualne.mzcr.cz$url" -H 'accept: application/ld+json'`
+				url=`echo "$output" | jq -r '.["hydra:view"]["hydra:next"]'`
+				vaccinations="$vaccinations`echo $output | jq '.["hydra:member"][]' -c`"
+			done
+			vaccinations_yesterday=`echo "$vaccinations" | jq -s '[.[] | select (.datum == "'$yesterday'") | .celkem_davek] | add'`
+			vaccinations_first_yesterday=`echo "$vaccinations" | jq -s '[.[] | select (.datum == "'$yesterday'") | .prvnich_davek] | add'`
+			vaccinations_second_yesterday=`echo "$vaccinations" | jq -s '[.[] | select (.datum == "'$yesterday'") | .druhych_davek] | add'`
 			vaccinations_third_yesterday=$((${vaccinations_yesterday} - ${vaccinations_first_yesterday} - ${vaccinations_second_yesterday}))
-			pes_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 3`
-			r_yesterday=`echo "$pes" | tail -n 1 | cut -d ';' -f 10 | xargs printf %.3f`
-			echo "active: $active | infected: $infected_overall (+$infected_yesterday [1d], $infected_week_diff [1w diff]) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_first_overall/$vaccinations_second_overall/$vaccinations_third_overall (+$vaccinations_first_yesterday/$vaccinations_second_yesterday/$vaccinations_third_yesterday) | PES: $pes_yesterday | R: $r_yesterday" > "${CHANNEL_DIR}/in"
+# 			vaccinations_overall=`echo "$vaccinations" | jq -s '[.[].celkem_davek] | add'`
+# 			vaccinations_first_overall=`echo "$vaccinations" | jq -s '[.[].prvnich_davek] | add'`
+# 			vaccinations_second_overall=`echo "$vaccinations" | jq -s '[.[].druhych_davek] | add'`
+# 			vaccinations_third_overall=$((${vaccinations_overall} - ${vaccinations_first_overall} - ${vaccinations_second_overall}))
+			vaccinations_overall=`echo $overview | jq '.vykazana_ockovani_celkem'`
+			
+			echo "active: $active | infected: $infected_overall (+$infected_yesterday [1d], $infected_week_diff [1w diff]) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall (+$vaccinations_first_yesterday/$vaccinations_second_yesterday/$vaccinations_third_yesterday)" > "${CHANNEL_DIR}/in"
 			;;
 		nehody)
 			curl -s https://d2g9cow0nr2qp.cloudfront.net/?q=$(echo -n "{ 'from': `date --date='00:00 yesterday' '+%s'`, 'to': `date --date='23:59:59 yesterday' '+%s'`, 'all': 'true' }" | base64) | jq '.["ČR"] | "accidents: " + (.PN | tostring) + " | dead: " + (.M | tostring) + " | serious injury: " + (.TR | tostring) + " | light injury: " + (.LR | tostring)' | xargs echo > "${CHANNEL_DIR}/in"
