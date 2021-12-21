@@ -69,6 +69,7 @@ do
 			
 			# This API sucks so we are getting only values for yesterday
 			url="/api/v3/ockovani?page=1&datum%5Bbefore%5D=$yesterday&datum%5Bafter%5D=$yesterday&apiToken=$KORONA_TOKEN"
+			vaccinations=""
 			while true ; do
 				[[ "$url" == "null" ]] && break
 				output=`curl -s "https://onemocneni-aktualne.mzcr.cz$url" -H 'accept: application/ld+json'`
