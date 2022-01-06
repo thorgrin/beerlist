@@ -61,22 +61,18 @@ do
 			reinfections=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-reinfekce?page=1&itemsPerPage=100&datum%5Bbefore%5D=$yesterday&datum%5Bafter%5D=$last_week&apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
 			reinfections_yesterday=`echo "$reinfections" | jq '.[] | select (.datum == "'$yesterday'") | .nove_reinfekce'`
 			reinfections_7d_ago=`echo "$reinfections" | jq '.[] | select (.datum == "'$last_week'") | .nove_reinfekce'`
-			positive_tests=`echo "scale=2; 100 * ($infected_yesterday + $reinfections_yesterday) / $tests_yesterday" | bc`
-	
-			detailed_7d_ago=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-vyleceni-umrti-testy/$last_week?apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
-			infected_7d_ago=`echo $detailed_7d_ago | jq '.prirustkovy_pocet_nakazenych'`
+			infected_7d_ago=`echo "$reinfections" | jq '.[] | select (.datum == "'$last_week'") | .nove_pripady'`
 			infected_week_diff=`echo "$infected_yesterday $infected_7d_ago" | awk '//{printf("%+d", $1 - $2)}'`
 			reinfections_week_diff=`echo "$reinfections_yesterday $reinfections_7d_ago" | awk '//{printf("%+d", $1 - $2)}'`
+			positive_tests=`echo "scale=2; 100 * ($infected_yesterday + $reinfections_yesterday) / $tests_yesterday" | bc`
 			
 			detailed_yesterday=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-vyleceni-umrti-testy/$yesterday?apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
 			cured_yesterday=`echo $detailed_yesterday | jq '.prirustkovy_pocet_vylecenych'`
 			deceased_yesterday=`echo $detailed_yesterday | jq '.prirustkovy_pocet_umrti'`
 			
 
-			# There are lots of items so we need two requests here
-			url="https://onemocneni-aktualne.mzcr.cz/api/v3/ockovani?page=1&datum%5Bbefore%5D=$yesterday&datum%5Bafter%5D=$yesterday&apiToken=$KORONA_TOKEN"
-			item_count=`curl -s "$url&itemsPerPage=0" -H 'accept: application/ld+json' | jq '.["hydra:totalItems"]'`
-			vaccinations=`curl -s "$url&itemsPerPage=$item_count" -H 'accept: application/json'`
+			# There are lots of items, but no more than 10000, which seems to be a limit
+			vaccinations=`curl -s "https://onemocneni-aktualne.mzcr.cz/api/v3/ockovani?page=1&datum%5Bbefore%5D=$yesterday&datum%5Bafter%5D=$yesterday&apiToken=$KORONA_TOKEN&itemsPerPage=10000" -H 'accept: application/json'`
 			vaccinations_yesterday=`echo "$vaccinations" | jq '[.[] | select (.datum == "'$yesterday'") | .celkem_davek] | add'`
 			vaccinations_first_yesterday=`echo "$vaccinations" | jq '[.[] | select (.datum == "'$yesterday'") | .prvnich_davek] | add'`
 			vaccinations_second_yesterday=`echo "$vaccinations" | jq '[.[] | select (.datum == "'$yesterday'") | .druhych_davek] | add'`
