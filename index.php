@@ -25,7 +25,7 @@ switch ($bar) {
 		$file = 'cache/op.json cache/mw.json cache/craft.json cache/jbm.json cache/fa.json';
 		break;
 	case 'history':
-		die("<pre>".shell_exec("(cat ./log/beerlog.json | ./tools/log2table.py)")."</pre>");
+		die("<pre>".shell_exec("(cat ./log/beerlog.json | tail -n 50 | ./tools/log2table.py)")."</pre>");
 		break;
 	default:
 		die("'mw', 'op', 'craft', 'all' or 'history'\n");
