@@ -12,7 +12,7 @@ if not html:
 soup = BeautifulSoup(html, 'html.parser')
 
 # Fin all articles that are not under a hidden section
-displayed = soup.select('section:not(.elementor-hidden-desktop) article')
+displayed = soup.select('section.elementor-hidden-desktop article')
 
 headers = ['Pivo', 'Typ', 'EPM', 'Alk.', 'IBU', 'Pivovar', 'Město']
 output = []
