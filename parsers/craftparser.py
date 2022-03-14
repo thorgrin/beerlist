@@ -2,58 +2,69 @@
 # -*- coding: utf-8 -*-
 
 import sys, re, json
-from xml.etree import ElementTree as ET
+from bs4 import BeautifulSoup
 import common as beerlib
 
 curl_ua = 'curl/7.54.1'
 
 # first we need the post ID
-html = beerlib.download_html('https://m.facebook.com/page_content_list_view/more/?page_id=1871132519814729&start_cursor=10000&num_to_fetch=10&surface_type=timeline', curl_ua)
-if not html:
+data = beerlib.download_html('https://m.facebook.com/page_content_list_view/more/?page_id=1871132519814729&start_cursor=10000&num_to_fetch=10&surface_type=timeline', curl_ua)
+if not data:
 	exit(-1)
 
-reg = re.compile('(<p>.*?</p>)')
+data = re.sub(r'for \(;;\);', '', data)
 
-# find post ids
-ids = re.findall('top_level_post_id&quot;:&quot;([0-9]+)', html)
+data_json = json.loads(data)
+data_html = data_json['actions'][0]['html']
 
-# Look at all articles until some beers are found
-for content_id in ids:
-	post_url = "https://m.facebook.com/story.php?story_fbid=%s&id=%s" % (content_id, '1871132519814729')
-	# print(post_url)
+# print(data_html)
 
-	# Okay, let's get the post
-	post_html = beerlib.download_html(post_url, curl_ua)
+# find photo ulrs
+photos = re.findall('href="(/Craftbeerbottleshopbar/photos/a.[0-9]+/[0-9]+/\?type=3)', data_html)
+
+# Look at all photo texts
+for photo in photos:
+	# Okay, let's get the photo
+	post_html = beerlib.download_html('https://m.facebook.com/' + photo, curl_ua)
 	if not post_html:
 		continue
 
-	paragraphs = reg.findall(post_html)
+	# print(post_html)
+	soup = BeautifulSoup(post_html, 'html.parser')
 
-	# Hope that some paragraph of post contains beers
-	for p in paragraphs:
-		beers = ET.XML(p)
+	# Convert br to \n
+	for br in soup.find_all('br'):
+		br.replace_with('\n')
 
-		# Nothing? Give up
-		if not beers:
-			continue
+	# Find div with text
+	text = soup.select('div#MPhotoContent div.msg div')
 
-		beers = list(beers.itertext())
+	# Get plaintext
+	text = text[0].get_text()
+	beers = text.splitlines()
 
-		# Hope that the beer list format is the same
-		headers = ['Pivo', 'Alk.', 'Pivovar', 'Typ']
-		output = []
-		for line in beers:
-			# Black Label #4 8,1% (Raven, Wild Ale)
-			m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%) +\(([^,]+), ?([^\)]+)\)?', line)
-			if not m:
-				# Zlaté Prasátko 6,5%
-				m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%)()()', line)
-			if m:
-				output = output + [list(m.groups())]
+	# Nothing? Give up
+	if not beers:
+		continue
 
-		if output:
-			beerlib.parser_output(output, headers, 'Craftbeer bottle shop & bar', sys.argv)
-			exit(0)
+	# Hope that the beer list format is the same
+	headers = ['Pivo', 'EPM', 'Pivovar', 'Typ']
+	output = []
+	for line in beers:
+		# Beertime dialogue 14° (Raven) - IPA
+		m = re.match(' *(.+?)(?: -)? +([0-9,\.]+°) +\(([^\)]+)\) - ?(.+)?', line)
+		# if not m:
+		# 	# Black Label #4 8,1% (Raven, Wild Ale)
+		# 	m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%) +\(([^,]+), ?([^\)]+)\)?', line)
+		# if not m:
+		# 	# Zlaté Prasátko 6,5%
+		# 	m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%)()()', line)
+		if m:
+			output = output + [list(m.groups())]
+
+	if output:
+		beerlib.parser_output(output, headers, 'Craftbeer bottle shop & bar', sys.argv)
+		exit(0)
 
 # nothing was found
 exit(1)
