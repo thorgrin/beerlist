@@ -48,19 +48,33 @@ for photo in photos:
 		continue
 
 	# Hope that the beer list format is the same
-	headers = ['Pivo', 'EPM', 'Pivovar', 'Typ']
+	headers = ['Pivo', 'EPM', 'Alk.', 'Pivovar', 'Typ']
 	output = []
 	for line in beers:
+		beer = False
 		# Beertime dialogue 14° (Raven) - IPA
 		m = re.match(' *(.+?)(?: -)? +([0-9,\.]+°) +\(([^\)]+)\) - ?(.+)?', line)
+		if m:
+			beer = list(m.groups())
+			# Empty Alk.
+			beer.insert(2, "")
+			print(beer)
+		else:
+			# No niin 6,4% (Tanker) - DDH IPA
+			m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%) +\(([^\)]+)\) - ?(.+)?', line)
+			if m:
+				beer = list(m.groups())
+				# Empty EPM
+				beer.insert(1, "")
+
 		# if not m:
 		# 	# Black Label #4 8,1% (Raven, Wild Ale)
 		# 	m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%) +\(([^,]+), ?([^\)]+)\)?', line)
 		# if not m:
 		# 	# Zlaté Prasátko 6,5%
 		# 	m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%)()()', line)
-		if m:
-			output = output + [list(m.groups())]
+		if beer:
+			output = output + [beer]
 
 	if output:
 		beerlib.parser_output(output, headers, 'Craftbeer bottle shop & bar', sys.argv)
