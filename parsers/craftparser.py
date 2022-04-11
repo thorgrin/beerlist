@@ -58,7 +58,6 @@ for photo in photos:
 			beer = list(m.groups())
 			# Empty Alk.
 			beer.insert(2, "")
-			print(beer)
 		else:
 			# No niin 6,4% (Tanker) - DDH IPA
 			m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%) +\(([^\)]+)\) - ?(.+)?', line)
