@@ -92,4 +92,18 @@ To enable Untappd notifications:
 * Add `update_untappd.sh` script to crontab
   ```
   */10 * * * * /path/to/tools/update_untappd.sh
+
   ```
+
+### Check Kaktus double credit promo
+
+Look at [https://www.mujkaktus.cz/novinky](https://www.mujkaktus.cz/novinky) for news
+
+To enable notifications:
+
+* Add nicks to be highlighted to `beerbot.conf` file to `KAKTUS_NOTIFY` variable.
+* Call kaktus update script from crontab
+  ```
+  10 8-20 * * * /path/to/tools/update_kaktus.sh
+  ```
+
