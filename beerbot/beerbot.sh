@@ -95,6 +95,9 @@ do
 		event | events)
 			curl --compressed -s 'https://events.gcm.cz/api.php?action=events&from='`date --date='today' +%Y-%m-%d`'&to='`date --date='next month' +%Y-%m-%d`'&lat=49.1950602&lon=16.6068371&radius=15&requestId=1' | jq -r '.events | reduce .[] as $event (""; . + "(" + $event.gcid + ") " + $event.name + "|" + $event.date_from + "\n" )' | head -n-1 | head -n 4 | while IFS='|' read e d; do echo -n "$e ["`date --date="$d" "+%a %d %b %Y %R"`"] | "; done | sed 's/| $/\n/g' > "${CHANNEL_DIR}/in"
 			;;
+		phm)
+			${CWD}/../tools/phm.py > "${CHANNEL_DIR}/in"
+			;;
 		*)
 			echo "$nick: tvoje stara je $bar" > "${CHANNEL_DIR}/in"
 			;;
