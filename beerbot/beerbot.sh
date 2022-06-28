@@ -22,10 +22,11 @@ fi
 tail -n 0 -F "${CHANNEL_DIR}/out"| while read line
 do
 	#pattern='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} <([^ ]+)> !([a-z]+)$'
-	pattern='^[0-9]+ <([^ ]+)> !([a-z]+)$'
+	pattern='^[0-9]+ <([^ ]+)> !([a-z]+)[[:space:]]*([a-zA-Z0-9[:space:]]+)?$'
 	[[ $line =~ $pattern ]]
 	nick=${BASH_REMATCH[1]}
 	bar=${BASH_REMATCH[2]}
+	param=${BASH_REMATCH[3]}
 	
 	if [ -z $bar ]; then
 		continue
@@ -96,10 +97,10 @@ do
 			curl --compressed -s 'https://events.gcm.cz/api.php?action=events&from='`date --date='today' +%Y-%m-%d`'&to='`date --date='next month' +%Y-%m-%d`'&lat=49.1950602&lon=16.6068371&radius=15&requestId=1' | jq -r '.events | reduce .[] as $event (""; . + "(" + $event.gcid + ") " + $event.name + "|" + $event.date_from + "\n" )' | head -n-1 | head -n 4 | while IFS='|' read e d; do echo -n "$e ["`date --date="$d" "+%a %d %b %Y %R"`"] | "; done | sed 's/| $/\n/g' > "${CHANNEL_DIR}/in"
 			;;
 		phm)
-			${CWD}/../tools/phm.py > "${CHANNEL_DIR}/in"
+			${CWD}/../tools/phm.py "$param" > "${CHANNEL_DIR}/in"
 			;;
 		*)
-			echo "$nick: tvoje stara je $bar" > "${CHANNEL_DIR}/in"
+			echo "$nick: tvoje stara je $bar $param" > "${CHANNEL_DIR}/in"
 			;;
 	esac
 done

@@ -1,3 +1,5 @@
 tabulate
 requests
 bs4
+geopy
+urllib3
