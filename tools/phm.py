@@ -20,7 +20,7 @@ data = json.loads(res.content)
 location = None
 if len(sys.argv) > 1 and len(sys.argv[1]) > 0:
     input_location = sys.argv[1]
-    res = requests.get('http://api.geonames.org/search?name=' + urllib.parse.quote_plus(input_location) + '&username=thorgrin&maxRows=1&type=json')
+    res = requests.get('http://api.geonames.org/search?name=' + urllib.parse.quote_plus(input_location) + '&countryBias=CZ&username=thorgrin&maxRows=1&type=json')
     result = json.loads(res.content)
     if result['totalResultsCount'] > 0:
         location = result['geonames'][0]
