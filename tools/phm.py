@@ -4,22 +4,41 @@ import json
 import requests
 from requests.auth import HTTPBasicAuth
 import urllib.parse
-import sys
+import sys, os.path
 from geopy import distance
+import argparse
 
-res = requests.post('https://einfo.ceproas.cz/cepro_portal_ws/rest/common/prox/mobileData/',
-    auth=HTTPBasicAuth('mobap', 'EWikA2'),
-    data='{}',
-    headers={'Content-Type': 'application/json; charset=UTF-8'}
-)
-data = json.loads(res.content)
+# Parse commandline arguments
+parser = argparse.ArgumentParser(description='Eurooil prices checker.')
+parser.add_argument('--location', help='Location to search for nearest station', nargs='+')
+parser.add_argument('--update', action='store_const', const=True, default=False,
+                    help='Update data from Eurooil web')
+args = parser.parse_args()
 
-# with open('data.json') as f:
-#     data = json.load(f);
+# Use cache to read data if possible
+cache = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../cache/phm.json')
+data = None
+if not args.update:
+    try:
+        with open(cache) as f:
+            data = json.load(f)
+    except:
+        pass
+
+# When cache is not available or an update was requested, read from API
+if not data:
+    res = requests.post('https://einfo.ceproas.cz/cepro_portal_ws/rest/common/prox/mobileData/',
+        auth=HTTPBasicAuth('mobap', 'EWikA2'),
+        data='{}',
+        headers={'Content-Type': 'application/json; charset=UTF-8'}
+    )
+    data = json.loads(res.content)
+    with open(cache, 'w+') as f:
+        json.dump(data, f)
 
 location = None
-if len(sys.argv) > 1 and len(sys.argv[1]) > 0:
-    input_location = sys.argv[1]
+input_location = " ".join(args.location)
+if len(input_location) > 0:
     res = requests.get('http://api.geonames.org/search?name=' + urllib.parse.quote_plus(input_location) + '&countryBias=CZ&username=thorgrin&maxRows=1&type=json')
     result = json.loads(res.content)
     if result['totalResultsCount'] > 0:
