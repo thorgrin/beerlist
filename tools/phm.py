@@ -7,6 +7,7 @@ import urllib.parse
 import sys, os.path
 from geopy import distance
 import argparse
+import unicodedata
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description='Eurooil prices checker.')
@@ -14,6 +15,15 @@ parser.add_argument('--location', help='Location to search for nearest station',
 parser.add_argument('--update', action='store_const', const=True, default=False,
                     help='Update data from Eurooil web')
 args = parser.parse_args()
+
+# convert input location to single string
+input_location_raw = " ".join(args.location).strip()
+# normalize input location
+input_location = unicodedata.normalize('NFKD', input_location_raw).encode('ascii','ignore').decode('ascii').lower()
+
+# Set default location if none is given
+if len(input_location) == 0:
+    input_location = 'opustena'
 
 # Use cache to read data if possible
 cache = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../cache/phm.json')
@@ -39,32 +49,36 @@ if not data:
     with open(cache, 'w+') as f:
         json.dump(data, f)
 
+station = None
+# Try to find exact station based on the name of location
+for s in data['Data']['cs_fix_list']:
+    if input_location in unicodedata.normalize('NFKD', s['nazev_kratky']).encode('ascii','ignore').decode('ascii').lower():
+        station = s
+        break
+
+# If no station was found and we have location, try to find nearest one
 location = None
-input_location = " ".join(args.location)
-if len(input_location) > 0:
+if not station and len(input_location) > 0:
     res = requests.get('http://api.geonames.org/search?name=' + urllib.parse.quote_plus(input_location) + '&countryBias=CZ&username=thorgrin&maxRows=1&type=json')
     result = json.loads(res.content)
     if result['totalResultsCount'] > 0:
         location = result['geonames'][0]
+        
+        # Find nearest station to given location
+        min_distance = float('inf')
+        for s in data['Data']['cs_fix_list']:
+            s_distance = distance.distance(
+                (s['GPS']['lat_dec'], s['GPS']['long_dec']),
+                (location['lat'], location['lng'])
+            )
+            if s_distance < min_distance:
+                min_distance = s_distance
+                station = s
 
-# Find Brno Opuštěná station (default)
-for station in data['Data']['cs_fix_list']:
-    if 'Opuštěná' in station['nazev_kratky']:
-        kod_cs = station['kod_cs']
-        break
-
-# Find nearest station to given location
-if location:
-    min_distance = float('inf')
-    for s in data['Data']['cs_fix_list']:
-        s_distance = distance.distance(
-            (s['GPS']['lat_dec'], s['GPS']['long_dec']),
-            (location['lat'], location['lng'])
-        )
-        if s_distance < min_distance:
-            min_distance = s_distance
-            station = s
-            kod_cs = s['kod_cs']
+# A location was given but not found
+if not station:
+    print(input_location_raw + ' is not a place')
+    exit(0)
 
 # Load products
 products = dict()
@@ -73,7 +87,7 @@ for product in data['Data']['cis_prod_list']:
 
 # Get prices
 for prices in data['Data']['cs_ceny']:
-    if kod_cs == prices['kod_cs']:
+    if station['kod_cs'] == prices['kod_cs']:
         break;
 
 # Print
