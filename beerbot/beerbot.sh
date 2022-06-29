@@ -105,6 +105,7 @@ do
 			fi
 
 			${CWD}/../tools/phm.py $update --location "$param" > "${CHANNEL_DIR}/in"
+			[[ "$?" -ne 0 ]] && echo "$nick: sorry jako" > "${CHANNEL_DIR}/in"
 			;;
 		*)
 			echo "$nick: tvoje stara je $bar $param" > "${CHANNEL_DIR}/in"

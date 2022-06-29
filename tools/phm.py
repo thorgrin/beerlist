@@ -10,7 +10,7 @@ import argparse
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description='Eurooil prices checker.')
-parser.add_argument('--location', help='Location to search for nearest station', nargs='+')
+parser.add_argument('--location', help='Location to search for nearest station', nargs='+', default='')
 parser.add_argument('--update', action='store_const', const=True, default=False,
                     help='Update data from Eurooil web')
 args = parser.parse_args()
@@ -32,6 +32,9 @@ if not data:
         data='{}',
         headers={'Content-Type': 'application/json; charset=UTF-8'}
     )
+    if (res.status_code != 200):
+        exit(1)
+
     data = json.loads(res.content)
     with open(cache, 'w+') as f:
         json.dump(data, f)
