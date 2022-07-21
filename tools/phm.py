@@ -8,6 +8,22 @@ import sys, os.path
 from geopy import distance
 import argparse
 import unicodedata
+from bs4 import BeautifulSoup
+
+def ono_prices():
+    res = requests.get('http://m.tank-ono.cz/cz/index.php?page=cenik')
+    if (res.status_code != 200):
+        exit(1)
+
+    soup = BeautifulSoup(res.content, 'html.parser')
+    text = soup.select('div.divprgw') + soup.select('div.divprbw')
+    products = []
+    for i in text:
+        name = i.get_text().strip()
+        if len(name) > 2:
+            name = name.lower().capitalize()
+        products.append(name + ': ' + '%.2f' % (int(i.findNextSibling('div').get_text())/100))
+    print('[ONO] ' + ', '.join(products))
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description='Eurooil prices checker.')
@@ -24,6 +40,11 @@ input_location = unicodedata.normalize('NFKD', input_location_raw).encode('ascii
 # Set default location if none is given
 if len(input_location) == 0:
     input_location = 'opustena'
+
+# Handle ONO special case
+if input_location == 'ono':
+    ono_prices()
+    exit(0)
 
 # Use cache to read data if possible
 cache = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../cache/phm.json')
