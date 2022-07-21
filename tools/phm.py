@@ -25,6 +25,19 @@ def ono_prices():
         products.append(name + ': ' + '%.2f' % (int(i.findNextSibling('div').get_text())/100))
     print('[ONO] ' + ', '.join(products))
 
+def makro_prices():
+    res = requests.get('https://www.makro.cz/prodejny/brno',
+    headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0', 'Accept': '*/*'})
+    if (res.status_code != 200):
+        exit(1)
+
+    soup = BeautifulSoup(res.content, 'html.parser')
+    text = soup.select('div.price')
+    products = []
+    for i in text:
+        products.append(i.select_one('div.field-name').get_text() + ': ' + i.select_one('div.field-price').get_text())
+    print('[Makro Brno] ' + ', '.join(products))
+
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description='Eurooil prices checker.')
 parser.add_argument('--location', help='Location to search for nearest station', nargs='+', default='')
@@ -44,6 +57,9 @@ if len(input_location) == 0:
 # Handle ONO special case
 if input_location == 'ono':
     ono_prices()
+    exit(0)
+elif input_location == 'makro':
+    makro_prices()
     exit(0)
 
 # Use cache to read data if possible
