@@ -107,6 +107,9 @@ do
 			${CWD}/../tools/phm.py $update --location "$param" > "${CHANNEL_DIR}/in"
 			[[ "$?" -ne 0 ]] && echo "$nick: sorry jako" > "${CHANNEL_DIR}/in"
 			;;
+		xkcd)
+			curl -s https://xkcd.com/ | grep 'Permanent link to this comic' | sed 's#.*"\(https://xkcd.com/[^"]\+\)".*#\1#g' > "${CHANNEL_DIR}/in"
+			;;
 		*)
 			echo "$nick: tvoje stara je $bar $param" > "${CHANNEL_DIR}/in"
 			;;
