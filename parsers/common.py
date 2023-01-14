@@ -48,10 +48,10 @@ def process_untappd(html: str, pivnice: str, args: List[str]) -> None:
 		# Add tags to get valid XML
 		beer = ET.XML(row + '</h6></div>')
 		title = beer.findtext('h5/a')
-		title = re.sub('^[0-9]+\. ', '', title)
-		style = beer.findtext('h5/em').strip('\n')
-		brewery = beer.findtext('h6/span/a').strip('\n')
-		properties = beer.findtext('h6/span').strip('\n')
+		title = re.sub('^[0-9]+\. ', '', title).strip()
+		style = beer.findtext('h5/em').strip('\n ')
+		brewery = beer.findtext('h6/span/a').strip('\n ')
+		properties = beer.findtext('h6/span').strip('\n ')
 		# 6.2% ABV • N/A IBU •
 		m = re.match('(.+) ABV • (.+) IBU', properties)
 		if m:
