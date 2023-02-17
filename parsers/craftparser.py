@@ -6,41 +6,31 @@ from bs4 import BeautifulSoup
 import common as beerlib
 
 curl_ua = 'curl/7.54.1'
+request_headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'}
 
 # first we need the post ID
-data = beerlib.download_html('https://m.facebook.com/page_content_list_view/more/?page_id=1871132519814729&start_cursor=10000&num_to_fetch=10&surface_type=timeline', curl_ua)
+data = beerlib.download_html('https://www.facebook.com/Craftbeerbottleshopbar/photos', user_agent = curl_ua, headers = request_headers)
 if not data:
 	exit(-1)
 
-data = re.sub(r'for \(;;\);', '', data)
-
-data_json = json.loads(data)
-data_html = data_json['actions'][0]['html']
-
-# print(data_html)
-
 # find photo ulrs
-photos = re.findall('href="(/Craftbeerbottleshopbar/photos/a.[0-9]+/[0-9]+/\?type=3)', data_html)
+photos = re.findall('href="(https://www.facebook.com/photo.php\?fbid[^"]+type=3)', data)
 
 # Look at all photo texts
 for photo in photos:
 	# Okay, let's get the photo
-	post_html = beerlib.download_html('https://m.facebook.com/' + photo, curl_ua)
-	if not post_html:
+	post = beerlib.download_html(photo.replace('&amp;', '&'), user_agent = curl_ua, headers = request_headers)
+	if not post:
 		continue
 
 	# print(post_html)
-	soup = BeautifulSoup(post_html, 'html.parser')
 
-	# Convert br to \n
-	for br in soup.find_all('br'):
-		br.replace_with('\n')
+	texts = re.findall('"text":"([^"]+)"', post)
+	if not texts:
+		continue
 
-	# Find div with text
-	text = soup.select('div#MPhotoContent div.msg div')
-
-	# Get plaintext
-	text = text[0].get_text()
+	text = bytes(texts[0], 'utf-8')
+	text = text.decode('unicode-escape')
 	beers = text.splitlines()
 
 	# Nothing? Give up
@@ -58,13 +48,24 @@ for photo in photos:
 			beer = list(m.groups())
 			# Empty Alk.
 			beer.insert(2, "")
-		else:
+
+		if not m:
 			# No niin 6,4% (Tanker) - DDH IPA
 			m = re.match(' *(.+?)(?: -)? +([0-9,\.]+%) +\(([^\)]+)\) - ?(.+)?', line)
 			if m:
 				beer = list(m.groups())
 				# Empty EPM
 				beer.insert(1, "")
+
+		if not m:
+			# 1. Clock Hektor 10° Svetlé výčapné
+			m = re.match('[0-9]+.? *(.+?)(?: -)? +([0-9,\.]+°) +(.+)?', line)
+			if m:
+				beer = list(m.groups())
+				# Empty Alk
+				beer.insert(2, "")
+				# We cannot determine brewery
+				beer.insert(3, "")
 
 		# if not m:
 		# 	# Black Label #4 8,1% (Raven, Wild Ale)

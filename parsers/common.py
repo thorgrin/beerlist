@@ -4,14 +4,15 @@ import re
 import json
 from xml.etree import ElementTree as ET
 from tabulate import tabulate
-from typing import List
+from typing import List, Dict
 
-def download_html(url: str, user_agent: str = "") -> str:
+def download_html(url: str, user_agent: str = "", headers: Dict = {}) -> str:
 	try:
 		if not user_agent:
 			user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
-		#res = requests.get(url, headers={'Connection': 'keep-alive', 'User-Agent': 'curl/7.54.1'})
-		res = requests.get(url, headers={'Connection': 'keep-alive', 'User-Agent': user_agent})
+		headers['Connection'] = 'keep-alive'
+		headers['User-Agent'] = user_agent
+		res = requests.get(url, headers=headers)
 	except requests.exceptions.RequestException as e:
 		print('Exception was caught while reading from \''+ url + '\': ' + str(e), file=sys.stderr);
 		return ''
