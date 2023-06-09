@@ -17,12 +17,14 @@ switch ($bar) {
 	case 'jbm':
 	case 'fa':
 	case 'pa':
+	case 'bg':
+	case 'dno':
 		$update = "./tools/update_cache.sh ".$bar;
 		$file = "cache/".$bar.".json";
 		break;
 	case 'all':
 		$update = "";
-		$file = 'cache/op.json cache/mw.json cache/craft.json cache/jbm.json cache/fa.json';
+		$file = 'cache/op.json cache/mw.json cache/craft.json cache/jbm.json cache/fa.json cache/bg.json cache/dno.json';
 		break;
 	case 'history':
 		die("<pre>".shell_exec("(cat ./log/beerlog.json | tail -n 50 | ./tools/log2table.py)")."</pre>");

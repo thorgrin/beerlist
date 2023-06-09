@@ -12,7 +12,7 @@ fi
 if [ -n "$1" ]; then
 	bars="$1"
 else
-	bars="mw op jbm fa pa" # craft | fuck fb
+	bars="mw op jbm fa pa bg dno" # craft | fuck fb
 	#bars="mw op jbm fa craft"
 fi
 
