@@ -5,7 +5,7 @@ CWD=`dirname "$(readlink -f "$0")"`
 # Read config file if it exists
 config="$(readlink -f /etc/beerbot.conf)"
 if [ -f "$config" ]; then
-        source $config
+	source $config
 else
 	echo "beerbot config not found" 1>&2
 	exit 1
@@ -27,7 +27,18 @@ do
 	nick=${BASH_REMATCH[1]}
 	bar=${BASH_REMATCH[2]}
 	param=${BASH_REMATCH[3]}
-	
+
+	if [ -z $bar ]; then
+		pattern='^[0-9]+ <([^ ]+)> .*?(17[0-9]{2}!+).*?$'
+		[[ $line =~ $pattern ]]
+		if [ -z ${BASH_REMATCH[2]} ]; then
+			continue
+		fi
+		nick=${BASH_REMATCH[1]}
+		bar='_salina_'
+		param=${BASH_REMATCH[2]}
+	fi
+
 	if [ -z $bar ]; then
 		continue
 	fi
@@ -39,7 +50,7 @@ do
 			if test `find "$cache" -mmin +${BEERBOT_CACHE_UPDATE}`; then
 				${CWD}/../tools/update_cache.sh $bar
 			fi
-			
+
 			cat "$cache" | ${CWD}/../tools/json2titles.py > "${CHANNEL_DIR}/in"
 			;;
 		korona)
@@ -66,11 +77,11 @@ do
 			infected_week_diff=`echo "$infected_yesterday $infected_7d_ago" | awk '//{printf("%+d", $1 - $2)}'`
 			reinfections_week_diff=`echo "$reinfections_yesterday $reinfections_7d_ago" | awk '//{printf("%+d", $1 - $2)}'`
 			positive_tests=`echo "scale=2; 100 * ($infected_yesterday + $reinfections_yesterday) / $tests_yesterday" | bc`
-			
+
 			detailed_yesterday=`curl --compressed -s "https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-vyleceni-umrti-testy/$yesterday?apiToken=$KORONA_TOKEN" -H 'accept: application/json'`
 			cured_yesterday=`echo $detailed_yesterday | jq '.prirustkovy_pocet_vylecenych'`
 			deceased_yesterday=`echo $detailed_yesterday | jq '.prirustkovy_pocet_umrti'`
-			
+
 
 			# There are lots of items, but no more than 10000, which seems to be a limit
 			vaccinations=`curl --compressed -s "https://onemocneni-aktualne.mzcr.cz/api/v3/ockovani?page=1&datum%5Bbefore%5D=$yesterday&datum%5Bafter%5D=$yesterday&apiToken=$KORONA_TOKEN&itemsPerPage=10000" -H 'accept: application/json'`
@@ -83,7 +94,7 @@ do
 # 			vaccinations_second_overall=`echo "$vaccinations" | jq -s '[.[].druhych_davek] | add'`
 # 			vaccinations_third_overall=$((${vaccinations_overall} - ${vaccinations_first_overall} - ${vaccinations_second_overall}))
 			vaccinations_overall=`echo $overview | jq '.vykazana_ockovani_celkem'`
-			
+
 			echo "active: $active | infected: $infected_overall (+$infected_yesterday/$reinfections_yesterday [1d], $infected_week_diff/$reinfections_week_diff [1w diff]) | tested (PCR/ATG): $tests_overall/$tests_overall_atg (yesterday +$tests_yesterday/$tests_yesterday_atg, $positive_tests% positive) | temporarily feeling better: $cured (+$cured_yesterday) | deceased: $deceased (+$deceased_yesterday) | hospitalised: $hospitalised | vaccinated: $vaccinations_overall (+$vaccinations_first_yesterday/$vaccinations_second_yesterday/$vaccinations_third_yesterday)" > "${CHANNEL_DIR}/in"
 			;;
 		nehody)
@@ -110,9 +121,15 @@ do
 		xkcd)
 			curl -s https://xkcd.com/ | grep 'Permanent link to this comic' | sed 's#.*"\(https://xkcd.com/[^"]\+\)".*#\1#g' > "${CHANNEL_DIR}/in"
 			;;
+		_salina_)
+			if [ $RANDOM -lt 28000 ]; then
+				echo "$nick: jdi pryc" > "${CHANNEL_DIR}/in"
+			else
+				echo "$nick: /r/unexpectedfactorial" > "${CHANNEL_DIR}/in"
+			fi
+			;;
 		*)
 			echo "$nick: tvoje stara je $bar $param" > "${CHANNEL_DIR}/in"
 			;;
 	esac
 done
-
