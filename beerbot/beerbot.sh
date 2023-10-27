@@ -44,7 +44,7 @@ do
 	fi
 
 	case $bar in
-		op|mw|craft|fa|jbm|pa|bg|dno)
+		op|mw|fa|jbm|pa|bg|dno)
 			# Update cache if necessary
 			cache="${CWD}/../cache/$bar.json"
 			if test `find "$cache" -mmin +${BEERBOT_CACHE_UPDATE}`; then
@@ -52,6 +52,9 @@ do
 			fi
 
 			cat "$cache" | ${CWD}/../tools/json2titles.py > "${CHANNEL_DIR}/in"
+			;;
+		craft)
+			echo "$nick: jdi pryc" > "${CHANNEL_DIR}/in"
 			;;
 		korona)
 			today=`date --date="today" +%Y-%m-%d`
