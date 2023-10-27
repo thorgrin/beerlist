@@ -23,6 +23,14 @@ def extract_rating(checkin):
     return None
 
 
+def extract_serving(checkin):
+    p = checkin.find('.//p[@class="serving"]')
+    if p is not None:
+        text = p.find('.//span').text.lower()
+        return text
+    return None
+
+
 if len(sys.argv) != 3:
     print("uuparser requires two arguments: untappd_username irc_nick")
     exit(-1)
@@ -89,11 +97,22 @@ try:
         if text is None:
             exit(-7)
 
+        serving = extract_serving(latest_check)
+        action = 'leje'
+        if serving == 'draft':
+            action = 'cepuje do sebe'
+        elif serving == 'bottle':
+            action = 'cumi do prazdne flasky od'
+        elif serving == 'can':
+            action = 'je na plech z'
+        elif serving == 'taster':
+            action = 'ochutnava'
+
         if len(text) >= 7 and text[5] == 'at':
             venue = 'doma' if text[6] == 'Untappd at Home' else 'v ' + text[6]
-            output = 'Notify: {0} sedi {1} a leje {2} (by {3})'.format(IRC_NICK, venue, text[2], text[4])
+            output = 'Notify: {0} sedi {1} a {4} {2} (by {3})'.format(IRC_NICK, venue, text[2], text[4], action)
         else:
-            output = 'Notify: {0} leje {1} (by {2})'.format(IRC_NICK, text[2], text[4])
+            output = 'Notify: {0} {3} {1} (by {2})'.format(IRC_NICK, text[2], text[4], action)
         rating = extract_rating(latest_check)
         if rating is not None:
             output += ' :: Hodnoceni: ' + rating
