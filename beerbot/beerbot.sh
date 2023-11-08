@@ -29,7 +29,7 @@ do
 	param=${BASH_REMATCH[3]}
 
 	if [ -z $bar ]; then
-		pattern='^[0-9]+ <([^ ]+)> .*?(17[0-9]{2}!+).*?$'
+		pattern='^[0-9]+ <([^ ]+)> .*?[[:space:]]+(1[0-9]{3}!+).*?$'
 		[[ $line =~ $pattern ]]
 		if [ -z ${BASH_REMATCH[2]} ]; then
 			continue
