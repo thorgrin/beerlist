@@ -29,14 +29,14 @@ do
 	param=${BASH_REMATCH[3]}
 
 	if [ -z $bar ]; then
-		pattern='^[0-9]+ <([^ ]+)> .*?[[:space:]]+(1[0-9]{3}!+).*?$'
+		pattern='^[0-9]+ <([^ ]+)> (.*?[[:space:]]+|)(1[0-9]{3}!+).*?$'
 		[[ $line =~ $pattern ]]
-		if [ -z ${BASH_REMATCH[2]} ]; then
+		if [ -z ${BASH_REMATCH[3]} ]; then
 			continue
 		fi
 		nick=${BASH_REMATCH[1]}
 		bar='_salina_'
-		param=${BASH_REMATCH[2]}
+		param=${BASH_REMATCH[3]}
 	fi
 
 	if [ -z $bar ]; then
