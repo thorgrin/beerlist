@@ -25,10 +25,27 @@ def extract_rating(checkin):
 
 def extract_serving(checkin):
     p = checkin.find('.//p[@class="serving"]')
+    span = None
     if p is not None:
-        text = p.find('.//span').text.lower()
-        return text
+        span = p.find('.//span')
+    if span is not None:
+        return span.text.strip().lower()
     return None
+
+
+def extract_serving_from_checkin(user, id):
+    html = beerlib.download_html('https://untappd.com/user/{0}/checkin/{1}'.format(user, id))
+    if not html:
+        exit(-20)
+
+    reg = re.compile('(<p class="serving">.*?</p>)', re.MULTILINE | re.DOTALL)
+    p = reg.search(html)
+    if not p:
+        exit(-21)
+
+    p = re.sub('<img.*?>', '', p.group(1), flags=re.MULTILINE | re.DOTALL)
+    checkin = ET.XML('<div>' + p + '</div>')
+    return extract_serving(checkin)
 
 
 if len(sys.argv) != 3:
@@ -98,6 +115,9 @@ try:
             exit(-7)
 
         serving = extract_serving(latest_check)
+        if serving is None:
+            serving = extract_serving_from_checkin(USER, latest_id)
+
         action = 'leje'
         if serving == 'draft':
             action = 'cepuje do sebe'
@@ -106,7 +126,7 @@ try:
         elif serving == 'can':
             action = 'je na plech z'
         elif serving == 'taster':
-            action = 'ochutnava'
+            action = 'ucucava neci'
 
         if len(text) >= 7 and text[5] == 'at':
             venue = 'doma' if text[6] == 'Untappd at Home' else 'v ' + text[6]
