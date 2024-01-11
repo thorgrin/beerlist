@@ -19,12 +19,14 @@ switch ($bar) {
 	case 'pa':
 	case 'bg':
 	case 'dno':
+        case 'u2pb':
+        case 'u2pt':
 		$update = "./tools/update_cache.sh ".$bar;
 		$file = "cache/".$bar.".json";
 		break;
 	case 'all':
 		$update = "";
-		$file = 'cache/op.json cache/mw.json cache/craft.json cache/jbm.json cache/fa.json cache/bg.json cache/dno.json';
+		$file = 'cache/op.json cache/mw.json cache/craft.json cache/jbm.json cache/fa.json cache/bg.json cache/dno.json cache/u2pb.json cache/u2pt.json';
 		break;
 	case 'history':
 		die("<pre>".shell_exec("(cat ./log/beerlog.json | tail -n 50 | ./tools/log2table.py)")."</pre>");
