@@ -41,7 +41,7 @@ def extract_serving_from_checkin(user, id):
     reg = re.compile('(<p class="serving">.*?</p>)', re.MULTILINE | re.DOTALL)
     p = reg.search(html)
     if not p:
-        exit(-21)
+        return None
 
     p = re.sub('<img.*?>', '', p.group(1), flags=re.MULTILINE | re.DOTALL)
     checkin = ET.XML('<div>' + p + '</div>')
@@ -146,4 +146,5 @@ try:
             json.dump(data, f)
 
 except Exception as e:
+    print(e)
     exit(-8)
