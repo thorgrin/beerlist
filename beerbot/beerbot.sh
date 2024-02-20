@@ -22,7 +22,7 @@ fi
 tail -n 0 -F "${CHANNEL_DIR}/out"| while read line
 do
 	#pattern='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} <([^ ]+)> !([a-z]+)$'
-	pattern='^[0-9]+ <([^ ]+)> !([a-z]+)[[:space:]]*([a-žA-Ž0-9[:space:]]+)?$'
+	pattern='^[0-9]+ <([^ ]+)> !([a-z0-9]+)[[:space:]]*([a-žA-Ž0-9[:space:]]+)?$'
 	[[ $line =~ $pattern ]]
 	nick=${BASH_REMATCH[1]}
 	bar=${BASH_REMATCH[2]}
@@ -44,7 +44,7 @@ do
 	fi
 
 	case $bar in
-		op|mw|craft|fa|jbm|pa|bg|dno)
+		op|mw|fa|jbm|pa|bg|dno|u2pb|u2pt)
 			# Update cache if necessary
 			cache="${CWD}/../cache/$bar.json"
 			if test `find "$cache" -mmin +${BEERBOT_CACHE_UPDATE}`; then
@@ -52,6 +52,9 @@ do
 			fi
 
 			cat "$cache" | ${CWD}/../tools/json2titles.py > "${CHANNEL_DIR}/in"
+			;;
+		craft)
+			echo "$nick: jdi pryc" > "${CHANNEL_DIR}/in"
 			;;
 		korona)
 			today=`date --date="today" +%Y-%m-%d`
