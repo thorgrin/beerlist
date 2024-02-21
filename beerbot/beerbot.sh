@@ -113,9 +113,13 @@ do
 		phm)
 			# Update cache if necessary
 			cache="${CWD}/../cache/phm.json"
+			scache="${CWD}/../cache/stations.json"
 			update=""
 			if test `find "$cache" -mmin +10 2> /dev/null`; then
 				update="--update"
+			fi
+			if test `find "$scache" -mtime +1 2> /dev/null`; then
+				update="${update} --update-stations"
 			fi
 
 			${CWD}/../tools/phm.py $update --location "$param" > "${CHANNEL_DIR}/in"

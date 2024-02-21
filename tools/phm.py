@@ -2,13 +2,13 @@
 
 import json
 import requests
-from requests.auth import HTTPBasicAuth
 import urllib.parse
 import sys, os.path
 from geopy import distance
 import argparse
 import unicodedata
 from bs4 import BeautifulSoup
+import re
 
 def ono_prices():
     res = requests.get('http://m.tank-ono.cz/cz/index.php?page=cenik')
@@ -38,11 +38,27 @@ def makro_prices():
         products.append(i.select_one('div.field-name').get_text() + ': ' + i.select_one('div.field-price').get_text())
     print('[Makro Brno] ' + ', '.join(products))
 
+# stupid lat/lon parser
+# expects format from eurooil api:
+# 48°46'44.016"N or 16°41'37.987"E
+def parse_gps_string(string):
+    try:
+        parts = re.findall(r'\d+(?:[.,]\d+)?', string.strip())
+        if parts:
+            parts = [float(part.replace(',', '.')) for part in parts]
+            return parts[0] + parts[1] / 60 + parts[2] / 3600
+        else:
+            raise ValueError()
+    except:
+        return None
+
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description='Eurooil prices checker.')
 parser.add_argument('--location', help='Location to search for nearest station', nargs='+', default='')
 parser.add_argument('--update', action='store_const', const=True, default=False,
                     help='Update data from Eurooil web')
+parser.add_argument('--update-stations', action='store_const', const=True, default=False,
+                    help='Update station data from Eurooil web')
 args = parser.parse_args()
 
 # convert input location to single string
@@ -63,6 +79,15 @@ elif input_location == 'makro':
     exit(0)
 
 # Use cache to read data if possible
+s_cache = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../cache/stations.json')
+stations = None
+if not args.update_stations:
+    try:
+        with open(s_cache) as f:
+            stations = json.load(f)
+    except:
+        pass
+
 cache = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../cache/phm.json')
 data = None
 if not args.update:
@@ -73,11 +98,20 @@ if not args.update:
         pass
 
 # When cache is not available or an update was requested, read from API
+if not stations:
+    res = requests.get('https://srdcovka.eurooil.cz/api/verejne/cerpaci-stanice',
+        headers={'User-Agent': 'Ktor client'}
+    )
+    if (res.status_code != 200):
+        exit(1)
+
+    stations = json.loads(res.content)
+    with open(s_cache, 'w+') as f:
+        json.dump(stations, f)
+
 if not data:
-    res = requests.post('https://einfo.ceproas.cz/cepro_portal_ws/rest/common/prox/mobileData/',
-        auth=HTTPBasicAuth('mobap', 'EWikA2'),
-        data='{}',
-        headers={'Content-Type': 'application/json; charset=UTF-8'}
+    res = requests.get('https://srdcovka.eurooil.cz/api/verejne/ceniky',
+        headers={'User-Agent': 'Ktor client'}
     )
     if (res.status_code != 200):
         exit(1)
@@ -88,8 +122,8 @@ if not data:
 
 station = None
 # Try to find exact station based on the name of location
-for s in data['Data']['cs_fix_list']:
-    if input_location in unicodedata.normalize('NFKD', s['nazev_kratky']).encode('ascii','ignore').decode('ascii').lower():
+for s in stations['data']:
+    if input_location in unicodedata.normalize('NFKD', s['nazev']).encode('ascii', 'ignore').decode('ascii').lower():
         station = s
         break
 
@@ -100,17 +134,20 @@ if not station and len(input_location) > 0:
     result = json.loads(res.content)
     if result['totalResultsCount'] > 0:
         location = result['geonames'][0]
-        
+
         # Find nearest station to given location
         min_distance = float('inf')
-        for s in data['Data']['cs_fix_list']:
-            s_distance = distance.distance(
-                (s['GPS']['lat_dec'], s['GPS']['long_dec']),
-                (location['lat'], location['lng'])
-            )
-            if s_distance < min_distance:
-                min_distance = s_distance
-                station = s
+        for s in stations['data']:
+            s_lat = parse_gps_string(s['gprsDelka'])
+            s_lon = parse_gps_string(s['gprsSirka'])
+            if (s_lat and s_lon):
+                s_distance = distance.distance(
+                    (s_lat, s_lon),
+                    (location['lat'], location['lng'])
+                )
+                if s_distance < min_distance:
+                    min_distance = s_distance
+                    station = s
 
 # A location was given but not found
 if not station:
@@ -119,16 +156,19 @@ if not station:
 
 # Load products
 products = dict()
-for product in data['Data']['cis_prod_list']:
-    products[product['kod_produkt']] = product['nazev_produkt']
+for product in station['produkty']:
+    products[product['ean']] = product['nazev']
 
 # Get prices
-for prices in data['Data']['cs_ceny']:
-    if station['kod_cs'] == prices['kod_cs']:
-        break;
+prices = dict()
+for price in data['data']:
+    if station['cerpaciStaniceIID'] == price['cerpaciStaniceIID']:
+        prices[price['ean']] = price['prodejniCena']
+
+prices = dict(sorted(prices.items(), key=lambda i: int(i[0])))
 
 # Print
 print('[{station_name}] {prices}'.format(
-    station_name=station['nazev_kratky'],
-    prices=', '.join([products[p['kod_produkt']] + ": " + '%.2f' % p['cena'] for p in prices['ceny']]))
+    station_name=station['nazev'],
+    prices=', '.join([products[k] + ": " + '%.2f' % prices[k] for k in prices]))
 )
