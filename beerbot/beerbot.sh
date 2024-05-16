@@ -31,12 +31,20 @@ do
 	if [ -z $bar ]; then
 		pattern='^[0-9]+ <([^ ]+)> (.*?[[:space:]]+|)(1[0-9]{3}!+).*?$'
 		[[ $line =~ $pattern ]]
-		if [ -z ${BASH_REMATCH[3]} ]; then
-			continue
+		if [ ! -z ${BASH_REMATCH[3]} ]; then
+			nick=${BASH_REMATCH[1]}
+			bar='_salina_'
+			param=${BASH_REMATCH[3]}
 		fi
-		nick=${BASH_REMATCH[1]}
-		bar='_salina_'
-		param=${BASH_REMATCH[3]}
+	fi
+
+	if [ -z $bar ]; then
+		pattern='^[0-9]+ <gcm> Nastavení souhlasu s personalizací.*$'
+		[[ $line =~ $pattern ]]
+		if [ ! -z "${BASH_REMATCH}" ]; then
+			nick='gcm'
+			bar='_ivo_'
+		fi
 	fi
 
 	if [ -z $bar ]; then
@@ -134,6 +142,9 @@ do
 			else
 				echo "$nick: /r/unexpectedfactorial" > "${CHANNEL_DIR}/in"
 			fi
+			;;
+		_ivo_)
+			echo "Ivo je kokot!" > "${CHANNEL_DIR}/in"
 			;;
 		*)
 			echo "$nick: tvoje stara je $bar $param" > "${CHANNEL_DIR}/in"
