@@ -170,5 +170,5 @@ prices = dict(sorted(prices.items(), key=lambda i: int(i[0])))
 # Print
 print('[{station_name}] {prices}'.format(
     station_name=station['nazev'],
-    prices=', '.join([products[k] + ": " + '%.2f' % prices[k] for k in prices]))
+    prices=', '.join([products[k] + ": " + '%.2f' % prices[k] for k in prices if k in products]))
 )
