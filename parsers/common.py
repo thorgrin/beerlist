@@ -41,6 +41,7 @@ def process_untappd(html: str, pivnice: str, args: List[str]) -> None:
 	content = re.sub('<script.*?</script>', '', body, flags=re.MULTILINE | re.DOTALL)
 	content = re.sub('<h4>Pivotéka / Bottleshop.*', '', content, flags=re.MULTILINE | re.DOTALL)
 	content = re.sub('<h4>Rozlévané | From bottle.*', '', content, flags=re.MULTILINE | re.DOTALL)
+	content = re.sub('<h4>\n?Fridge.*', '', content, flags=re.MULTILINE | re.DOTALL)
 	beers = re.findall('(<div class="beer-details">.*?</span>)', content, re.MULTILINE | re.DOTALL)
 
 	headers = ['Pivo', 'Typ', 'Alk.', 'IBU', 'Pivovar']
