@@ -21,7 +21,7 @@ for article in displayed:
 	info = article.find_all('span', attrs={'class': 'elementor-icon-list-text'})
 	# print(info)
 	info = iter(info)
-	if not info:
+	if not info or beer.text in (None, '') or not beer.text.strip():
 		continue
 	values = [beer.text] + ["".join(i.text) for i in info]
 
