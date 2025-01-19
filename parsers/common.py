@@ -16,6 +16,9 @@ def download_html(url: str, user_agent: str = "", headers: Dict = {}) -> str:
 	except requests.exceptions.RequestException as e:
 		print('Exception was caught while reading from \''+ url + '\': ' + str(e), file=sys.stderr);
 		return ''
+	if res.status_code != 200:
+		print('Loading "%s" failed' % url)
+		return ''
 	res.encoding = 'utf-8'
 	return res.text
 
@@ -65,4 +68,9 @@ def process_untappd(html: str, pivnice: str, args: List[str]) -> None:
 			alk = ''
 			ibu = ''
 		output = output + [[title, style, alk, ibu, brewery]]
-	parser_output(output, headers, pivnice, args)
+
+	if output:
+		parser_output(output, headers, pivnice, args)
+	else:
+		# Page does not contain any beers, this is a fatal error
+		exit(-2)
