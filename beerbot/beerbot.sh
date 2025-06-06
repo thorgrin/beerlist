@@ -52,7 +52,7 @@ do
 	fi
 
 	case $bar in
-		op|mw|fa|jbm|pa|bg|dno|u2pb|u2pt|craft)
+		op|mw|fa|jbm|pa|bg|dno|u2pb|u2pt|craft|kult)
 			# Update cache if necessary
 			cache="${CWD}/../cache/$bar.json"
 			if test `find "$cache" -mmin +${BEERBOT_CACHE_UPDATE}`; then
