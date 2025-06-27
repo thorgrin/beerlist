@@ -1,4 +1,5 @@
-import requests
+# import requests
+import httpx
 import sys
 import re
 import json
@@ -6,7 +7,7 @@ from xml.etree import ElementTree as ET
 from tabulate import tabulate
 from typing import List, Dict
 
-def download_html(url: str, user_agent: str = "", headers: Dict = {}) -> str:
+def download_html_http1(url: str, user_agent: str = "", headers: Dict = {}) -> str:
 	try:
 		if not user_agent:
 			user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
@@ -16,6 +17,23 @@ def download_html(url: str, user_agent: str = "", headers: Dict = {}) -> str:
 	except requests.exceptions.RequestException as e:
 		print('Exception was caught while reading from \''+ url + '\': ' + str(e), file=sys.stderr);
 		return ''
+	if res.status_code != 200:
+		print('Loading "%s" failed' % url)
+		return ''
+	res.encoding = 'utf-8'
+	return res.text
+
+def download_html(url: str, user_agent: str = "", headers: Dict = {}) -> str:
+	client = httpx.Client(http2=True)
+
+	try:
+		if not user_agent:
+			user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
+		headers['Connection'] = 'keep-alive'
+		headers['User-Agent'] = user_agent
+		res = client.get(url, headers=headers)
+	finally:
+		client.close()
 	if res.status_code != 200:
 		print('Loading "%s" failed' % url)
 		return ''
@@ -54,8 +72,8 @@ def process_untappd(html: str, pivnice: str, args: List[str]) -> None:
 		# Add tags to get valid XML
 		beer = ET.XML(row + '</h6></div>')
 		title = beer.findtext('h5/a')
-		title = re.sub('\r?\n|\r', ' ', title).strip()
-		title = re.sub('^[0-9]+\. ?', '', title).strip()
+		title = re.sub(r'\r?\n|\r', ' ', title).strip()
+		title = re.sub(r'^[0-9]+\. ?', '', title).strip()
 		style = beer.findtext('h5/em').strip('\n ')
 		brewery = beer.findtext('h6/span/a').strip('\n ')
 		properties = beer.findtext('h6/span').strip('\n ')

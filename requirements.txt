@@ -3,3 +3,4 @@ requests
 bs4
 geopy
 urllib3
+httpx[http2]
