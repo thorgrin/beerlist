@@ -52,7 +52,7 @@ do
 	fi
 
 	case $bar in
-		op|mw|fa|jbm|pa|bg|dno|craft|kult)
+		op|mw|fa|pa|bg|dno|craft|kult)
 			# u2pb|u2pt not working
 			# Update cache if necessary
 			cache="${CWD}/../cache/$bar.json"

@@ -14,13 +14,12 @@ switch ($bar) {
 	case 'mw':
 	case 'op':
 	case 'craft':
-	case 'jbm':
 	case 'fa':
 	case 'pa':
 	case 'bg':
 	case 'dno':
-        case 'u2pb':
-        case 'u2pt':
+        //case 'u2pb':
+        //case 'u2pt':
 		$update = "./tools/update_cache.sh ".$bar;
 		$file = "cache/".$bar.".json";
 		break;
