@@ -19,7 +19,7 @@ output = []
 headers = ['Pivo', 'Pivovar', 'Typ', 'EPM']
 
 # TÁBOR
-rows = tables[1].find_all('tr')
+rows = tables[0].find_all('tr')
 del(rows[0])
 for row in rows:
     values = []
