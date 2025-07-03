@@ -32,6 +32,9 @@ def download_html(url: str, user_agent: str = "", headers: Dict = {}) -> str:
 		headers['Connection'] = 'keep-alive'
 		headers['User-Agent'] = user_agent
 		res = client.get(url, headers=headers, follow_redirects=True)
+	except httpx.RequestError as exc:
+		print(f"An error occurred while requesting {exc.request.url!r}.")
+		return ''
 	finally:
 		client.close()
 	if res.status_code != 200:
