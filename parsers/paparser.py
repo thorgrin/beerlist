@@ -42,11 +42,13 @@ for i in range(0, len(others_list)):
         brewery = match.group('brewery')
         location = match.group('location')
         beer_type = match.group('type')
-    
+
         brewery_list.append(brewery)
         city_list.append(location)
         type_list.append(beer_type)
         alc_list.append(alc)
+    else:
+        beer_list.pop()
 
 output = []
 headers = ['Pivo', 'Typ', 'Alk.', 'Pivovar', 'Město']
