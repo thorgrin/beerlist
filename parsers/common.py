@@ -75,6 +75,8 @@ def process_untappd(html: str, pivnice: str, args: List[str]) -> None:
 		# Add tags to get valid XML
 		beer = ET.XML(row + '</h6></div>')
 		title = beer.findtext('h5/a')
+		if not title:
+			continue
 		title = re.sub(r'\r?\n|\r', ' ', title).strip()
 		title = re.sub(r'^[0-9]+\. ?', '', title).strip()
 		style = beer.findtext('h5/em').strip('\n ')
