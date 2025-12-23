@@ -55,9 +55,9 @@ def parse_html_for_new_messages(response: str,
     new_content = []
     soup = bs(response, "lxml")
 
-    for element in soup.find_all('div', {'class': 'article'}):
-        title = element.h3.string
-        text = '\n'.join([a.string for a in element.find_all('p') if a.string])
+    for element in soup.find_all('div', {'class': 'text-body-copy'}):
+        title = element.h4.string
+        text = 'Nezapomeň na Kaktusí dobíječku!'
 
         # All new messages are already read
         if title == last_seen_title:
@@ -77,7 +77,7 @@ def main() -> None:
     # fetch the Kaktus URL and check if it was successful
     try:
         kaktus_response = requests.get(
-            'https://www.mujkaktus.cz/novinky',
+            'https://www.mujkaktus.cz/chces-pridat',
             timeout=10.0)
         if kaktus_response.status_code == 200:
             response_text = kaktus_response.text
