@@ -17,6 +17,9 @@ for line in sys.stdin:
     index_brewery = data['headers'].index('Pivovar')
     for beer in data['beers']:
         name = beer[index_beer]
+        # Skip when there is no brewery
+        if len(beer) -1 < index_brewery:
+            continue
         brewery = beer[index_brewery]
 
         # Make brewery name shorter for a known list
