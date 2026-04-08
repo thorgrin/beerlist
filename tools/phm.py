@@ -27,7 +27,7 @@ def ono_prices():
 
 def makro_prices():
     res = requests.get('https://www.makro.cz/prodejny/brno',
-    headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0', 'Accept': '*/*'})
+        headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0'})
     if (res.status_code != 200):
         exit(1)
 
