@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import re
 
 def ono_prices():
-    res = requests.get('http://m.tank-ono.cz/cz/index.php?page=cenik')
+    res = requests.get('https://m.tank-ono.cz/cz/index.php?page=cenik')
     if (res.status_code != 200):
         exit(1)
 
@@ -22,7 +22,7 @@ def ono_prices():
         name = i.get_text().strip()
         if len(name) > 2:
             name = name.lower().capitalize()
-        products.append(name + ': ' + '%.2f' % (int(i.findNextSibling('div').get_text())/100))
+        products.append(name + ': ' + '%.2f' % (int(i.find_next_sibling('div').get_text())/100))
     print('[ONO] ' + ', '.join(products))
 
 def makro_prices():
